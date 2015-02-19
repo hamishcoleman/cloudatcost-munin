@@ -23,7 +23,7 @@ my $res;
 # Hack the object up with a fake network layer
 $object->{_ua} = $fakeua;
 
-$fakeua->{_status_line} = '999 test';
+$fakeua->{_is_success} = undef;
 
 $res = $object->get('api/now/table/incident');
 is($res,undef);
@@ -35,10 +35,9 @@ $res = $object->get('api/now/table/incident');
 is($res,undef);
 
 $fakeua->{_content_type} = 'application/json';
-$fakeua->{_decoded_content}='{"test":"foo"}';
 
 $res = $object->get('api/now/table/incident');
-is_deeply($res,{test=>'foo'});
+is_deeply($res,{fake=>'attrib'});
 
 $object->post('api/now/table/incident',post=>'test');
 is($fakeua->{_op}{args}{Content},'{"post":"test"}');

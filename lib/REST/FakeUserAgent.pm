@@ -10,6 +10,12 @@ sub new {
     my $self = {};
     bless $self, $class;
 
+    # Set some default state
+    $self->{_is_success}=1;
+    $self->{_status_line}='299 OK';
+    $self->{_content_type}='application/json';
+    $self->{_decoded_content}='{"fake":"attrib"}';
+
     return $self;
 }
 
