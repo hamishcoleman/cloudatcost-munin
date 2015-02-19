@@ -7,6 +7,11 @@ BEGIN {
 my $object = REST::JSONRequest->new();
 isa_ok($object,'REST::JSONRequest', 'Create object');
 
+is($object->{_urlprefix},undef);
+is($object->get('api/now/table/incident'),undef);
+is($object->post('api/now/table/incident',post=>'test'),undef);
+
+
 my $urlprefix = 'https://example.com/';
 isa_ok($object->set_urlprefix($urlprefix),'REST::JSONRequest',
     'Set prefix');
@@ -39,7 +44,8 @@ $fakeua->{_content_type} = 'application/json';
 $res = $object->get('api/now/table/incident');
 is_deeply($res,{fake=>'attrib'});
 
-$object->post('api/now/table/incident',post=>'test');
+$res = $object->post('api/now/table/incident',post=>'test');
+is_deeply($res,{fake=>'attrib'});
 is($fakeua->{_op}{args}{Content},'{"post":"test"}');
 
 done_testing();

@@ -68,6 +68,8 @@ sub _return_json {
 sub get {
     my ($self,$urlsuffix) = @_;
 
+    return undef if (!defined($self->{_urlprefix}));
+
     # FIXME - urlsuffix must not start with '/'
 
     my $res = $self->{_ua}->get($self->{_urlprefix}.$urlsuffix);
@@ -80,6 +82,8 @@ sub post {
     my %args = (
         @_,
     );
+
+    return undef if (!defined($self->{_urlprefix}));
 
     my $args_json = encode_json \%args;
 
