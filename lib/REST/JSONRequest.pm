@@ -107,12 +107,12 @@ sub patch {
     my $args_json = encode_json \%args;
     my $headers = [
         'Content-type', 'application/json',
-        'Content', $args_json,
     ];
 
     my $req = HTTP::Request->new(
         PATCH => $self->{_urlprefix}.$urlsuffix,
         $headers,
+        $args_json,
     );
 
     my $res = $self->{_ua}->request($req);

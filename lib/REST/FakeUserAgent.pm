@@ -53,6 +53,9 @@ sub request {
     for my $field ($req->headers->header_field_names) {
         $args{$field} = $req->headers->header($field);
     }
+    if ($req->content()) {
+        $args{Content} = $req->content();
+    }
 
     return $self->_op( $req->method(), $req->url()->as_string(), %args );
 }
