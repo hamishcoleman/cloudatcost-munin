@@ -46,4 +46,15 @@ sub _op {
 sub get  { return shift->_op('get',@_); }
 sub post { return shift->_op('post',@_); }
 
+sub request {
+    my $self = shift;
+    my $req = shift;
+    my %args;
+    for my $field ($req->headers->header_field_names) {
+        $args{$field} = $req->headers->header($field);
+    }
+
+    return $self->_op( $req->method(), $req->url()->as_string(), %args );
+}
+
 1;

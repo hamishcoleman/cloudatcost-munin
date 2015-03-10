@@ -95,5 +95,30 @@ sub post {
     return _return_json($res);
 }
 
+sub patch {
+    my $self = shift;
+    my $urlsuffix = shift;
+    my %args = (
+        @_,
+    );
+
+    return undef if (!defined($self->{_urlprefix}));
+
+    my $args_json = encode_json \%args;
+    my $headers = [
+        'Content-type', 'application/json',
+        'Content', $args_json,
+    ];
+
+    my $req = HTTP::Request->new(
+        PATCH => $self->{_urlprefix}.$urlsuffix,
+        $headers,
+    );
+
+    my $res = $self->{_ua}->request($req);
+
+    return _return_json($res);
+}
+
 1;
 

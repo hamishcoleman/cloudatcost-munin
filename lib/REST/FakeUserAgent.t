@@ -24,5 +24,13 @@ isa_ok($res,'REST::FakeUserAgent');
 is($res->{_op}{op},'post');
 is($res->{_op}{url},'http://fake.example.com/post');
 
+use HTTP::Request;
+my $req = HTTP::Request->new( PATCH => 'http://fake.example.com/patch' );
+$res = $object->request($req);
+isa_ok($res,'REST::FakeUserAgent');
+
+is($res->{_op}{op},'PATCH');
+is($res->{_op}{url},'http://fake.example.com/patch');
+
 
 done_testing();

@@ -48,4 +48,8 @@ $res = $object->post('api/now/table/incident',post=>'test');
 is_deeply($res,{fake=>'attrib'});
 is($fakeua->{_op}{args}{Content},'{"post":"test"}');
 
+$res = $object->patch('api/now/table/incident',patch=>'test');
+is_deeply($res,{fake=>'attrib'});
+is($fakeua->{_op}{args}{Content},'{"patch":"test"}');
+
 done_testing();
