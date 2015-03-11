@@ -10,6 +10,7 @@ isa_ok($object,'REST::JSONRequest', 'Create object');
 is($object->{_urlprefix},undef);
 is($object->get('api/now/table/incident'),undef);
 is($object->post('api/now/table/incident',post=>'test'),undef);
+is($object->patch('api/now/table/incident',patch=>'test'),undef);
 
 
 my $urlprefix = 'https://example.com/';

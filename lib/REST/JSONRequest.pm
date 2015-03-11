@@ -31,9 +31,26 @@ sub new {
 sub set_urlprefix {
     my ($self,$urlprefix) = @_;
 
-    # FIXME - urlprefix must end in '/'
-
     $self->{_urlprefix} = $urlprefix;
+
+    return $self->_check_urlprefix();
+}
+
+sub urlprefix {
+    return shift->{_urlprefix};
+}
+
+sub _check_urlprefix {
+    my ($self) = @_;
+
+    if (!defined($self->urlprefix())) {
+        return undef;
+    }
+
+    # FIXME
+    # - urlprefix must end in '/'
+    # - should start with a https
+
     return $self;
 }
 
@@ -68,11 +85,11 @@ sub _return_json {
 sub get {
     my ($self,$urlsuffix) = @_;
 
-    return undef if (!defined($self->{_urlprefix}));
+    return undef if (!defined($self->_check_urlprefix()));
 
     # FIXME - urlsuffix must not start with '/'
 
-    my $res = $self->{_ua}->get($self->{_urlprefix}.$urlsuffix);
+    my $res = $self->{_ua}->get($self->urlprefix().$urlsuffix);
     return _return_json($res);
 }
 
@@ -83,12 +100,12 @@ sub post {
         @_,
     );
 
-    return undef if (!defined($self->{_urlprefix}));
+    return undef if (!defined($self->_check_urlprefix()));
 
     my $args_json = encode_json \%args;
 
     my $res = $self->{_ua}->post(
-        $self->{_urlprefix}.$urlsuffix,
+        $self->urlprefix().$urlsuffix,
         'Content-type' => 'application/json',
         'Content' => $args_json,
     );
@@ -102,7 +119,7 @@ sub patch {
         @_,
     );
 
-    return undef if (!defined($self->{_urlprefix}));
+    return undef if (!defined($self->_check_urlprefix()));
 
     my $args_json = encode_json \%args;
     my $headers = [
@@ -110,7 +127,7 @@ sub patch {
     ];
 
     my $req = HTTP::Request->new(
-        PATCH => $self->{_urlprefix}.$urlsuffix,
+        PATCH => $self->urlprefix().$urlsuffix,
         $headers,
         $args_json,
     );
