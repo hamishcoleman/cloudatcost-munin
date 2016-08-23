@@ -1,0 +1,6 @@
+
+A munin plugin to monitor cloudatcost accounts using the API.
+
+- resources available/consumed
+- VM utilisation
+
