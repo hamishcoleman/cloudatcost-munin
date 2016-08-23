@@ -7,8 +7,5 @@ A munin plugin to monitor cloudatcost accounts using the API.
 API Documentation:
     https://panel.cloudatcost.com/api-details.php
 
-Well, that must be one the shorter projects I've started..  Step one of their
-API docs is to generate an API KEY, however that is not working ...
-
-Status:  Paused, waiting for cloudatcost to suck less
+NOTE: generating the API key didnt work for meon firefox, but does on chromium.
 
