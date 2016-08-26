@@ -1,0 +1,84 @@
+#!/usr/bin/env perl
+use warnings;
+use strict;
+#
+# Quick commandline tool to call the interface libraries and confirm that
+# things work
+#
+
+# allow the libs to be in the bin dir
+use FindBin;
+use lib "$FindBin::RealBin/lib";
+use lib "/home/hamish/s/bin/lib";
+
+use Getopt::Long 2.33 qw(:config gnu_getopt);
+use Pod::Usage;
+
+use Data::Dumper;
+$Data::Dumper::Indent = 1;
+$Data::Dumper::Sortkeys = 1;
+$Data::Dumper::Quotekeys = 0;
+
+use HC::CredentialStore;
+use REST::JSONRequest;
+use CloudAtCost;
+
+
+my $option = {
+    preset   => 'cac',
+    verbose  => 0,
+};
+my @option_list = (
+    "preset|s=s",
+    "credfile=s",
+    "verbose|v+",
+);
+
+###############################################################################
+##
+## Standard options processor
+sub do_options {
+    my $option = shift;
+    if (!GetOptions($option,@_)) {
+        print("Options: ",join(", ",@_),"\n");
+        pod2usage(2);
+    }
+    if ($option->{man}) {
+        pod2usage(-exitstatus => 0, -verbose => 2);
+    }
+
+    if ($option->{quiet}) {
+        delete $option->{verbose};
+    }
+}
+
+###############################################################################
+
+sub main() { 
+    do_options($option,@option_list);
+    return if (defined($option->{help}));
+
+    my ($username,$key);
+    if (defined($option->{credfile})) {
+        my $cred = HC::CredentialStore->new($option->{credfile});
+        die("credfile error") if (!defined($cred));
+
+        ($username,$key) = $cred->lookup($option->{preset});
+    }
+
+    die "Need username credentials" if (!defined($username));
+    die "Need key credentials" if (!defined($key));
+
+    my $client = REST::JSONRequest->new();
+    $client->set_urlprefix('https://panel.cloudatcost.com/');
+
+    my $cloudatcost = CloudAtCost->new();
+    $cloudatcost->set_Request($client);
+    $cloudatcost->set_credentials($username,$key);
+
+    my $result = $cloudatcost->query('api/v1/listservers.php');
+    print "Main object: ",Dumper($cloudatcost),"\n";
+    print "Result object: ",Dumper($result),"\n";
+}
+main();
+

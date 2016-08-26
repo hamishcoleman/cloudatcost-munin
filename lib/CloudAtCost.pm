@@ -1,0 +1,65 @@
+package CloudAtCost;
+use warnings;
+use strict;
+#
+# Interface with the ServiceNow REST API
+#
+
+#use ServiceNow::Table;
+
+sub new {
+    my $class = shift;
+    my $self = {};
+    bless $self, $class;
+
+    return $self;
+}
+
+sub Request { return shift->{_Request}; }
+sub set_Request { 
+    my $self = shift;
+    my $request = shift;
+    $self->{_Request} = $request;
+    return $self;
+}
+
+sub set_credentials {
+    my $self = shift;
+    my $login = shift;
+    my $key = shift;
+    $self->{login} = $login;
+    $self->{key} = $key;
+    return $self;
+}
+
+sub query {
+    my $self = shift;
+    my $urltail = shift;
+    my %fields;
+
+    %fields = (
+        login => $self->{login},
+        key => $self->{key},
+        @_,
+    );
+
+    # FIXME
+    # - we really should not be manually marshalling parameters - I should
+    #   just use an existing library here
+
+    if (scalar(keys(%fields))) {
+        my @param;
+        foreach (keys(%fields)) {
+            push @param, join('=',$_,$fields{$_});
+        }
+        $urltail.='?'.join('&',@param);
+    }
+
+    my $res = $self->Request()->get($urltail);
+    return undef if (!defined($res));
+    return $res;
+}
+
+#https://panel.cloudatcost.com/api/v1/listservers.php?key=$x&login=$y
+
+1;
