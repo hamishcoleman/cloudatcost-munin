@@ -74,10 +74,10 @@ sub _return_json {
         return undef;
     }
 
-    if ($res->content_type ne 'application/json') {
-        warn "content_type != application/json";
-        return undef;
-    }
+    #if ($res->content_type ne 'application/json') {
+    #    warn "content_type != application/json";
+    #    return undef;
+    #}
 
     return decode_json $res->decoded_content;
 }
