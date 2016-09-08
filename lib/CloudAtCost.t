@@ -28,7 +28,9 @@ my $urlprefix = 'https://example.com/';
 my $urltail = 'api/v1/listservers.php';
 
 $request->set_urlprefix($urlprefix);
+$request->set_expectmimetype('text/html'); # silly cloudatcost
 
+$fakeua->{_content_type} = 'text/html';
 $fakeua->{_decoded_content} = '{"status":"ok","time": 1, "id": "1000", "data": [{"id": "1234"}]}';
 my $result_json = $cloudatcost->query($urltail);
 ok(defined($result_json));

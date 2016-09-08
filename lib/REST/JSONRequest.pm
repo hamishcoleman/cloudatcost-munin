@@ -69,7 +69,16 @@ sub set_userpass {
     return $self;
 }
 
+sub set_expectmimetype {
+    my $self = shift;
+    my $mimetype = shift;
+
+    $self->{_mimetype} = $mimetype;
+    return $self;
+}
+
 sub _return_json {
+    my $self = shift;
     my ($res) = @_;
 
     if (!$res->is_success) {
@@ -78,10 +87,10 @@ sub _return_json {
         return undef;
     }
 
-    #if ($res->content_type ne 'application/json') {
-    #    warn "content_type != application/json";
-    #    return undef;
-    #}
+    if ($res->content_type ne $self->{_mimetype}) {
+        warn "unexpected content_type (".$res->content_type." != ".$self->{_mimetype}.")";
+        return undef;
+    }
 
     return decode_json $res->decoded_content;
 }
@@ -94,7 +103,7 @@ sub get {
     # FIXME - urlsuffix must not start with '/'
 
     my $res = $self->{_ua}->get($self->urlprefix().$urlsuffix);
-    return _return_json($res);
+    return $self->_return_json($res);
 }
 
 sub post {
@@ -113,7 +122,7 @@ sub post {
         'Content-type' => 'application/json',
         'Content' => $args_json,
     );
-    return _return_json($res);
+    return $self->_return_json($res);
 }
 
 sub patch {
@@ -138,7 +147,7 @@ sub patch {
 
     my $res = $self->{_ua}->request($req);
 
-    return _return_json($res);
+    return $self->_return_json($res);
 }
 
 1;

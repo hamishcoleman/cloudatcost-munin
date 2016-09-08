@@ -19,6 +19,8 @@ isa_ok($object->set_urlprefix($urlprefix),'REST::JSONRequest',
 
 is($object->{_urlprefix},$urlprefix);
 
+isa_ok($object->set_expectmimetype("application/json"),'REST::JSONRequest');
+
 isa_ok($object->set_userpass('aaa','bbb'),'REST::JSONRequest');
 # TODO - dig around in the _ua object looking for the auth header and confirm
 
