@@ -2,10 +2,8 @@ package CloudAtCost;
 use warnings;
 use strict;
 #
-# Interface with the ServiceNow REST API
+# Interface with the Cloudatcost REST API
 #
-
-#use ServiceNow::Table;
 
 sub new {
     my $class = shift;
@@ -16,7 +14,7 @@ sub new {
 }
 
 sub Request { return shift->{_Request}; }
-sub set_Request { 
+sub set_Request {
     my $self = shift;
     my $request = shift;
     $self->{_Request} = $request;
