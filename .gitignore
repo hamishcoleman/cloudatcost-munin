@@ -1,0 +1,5 @@
+
+# ignore generated and private data
+cover_db
+credfile.txt
+
