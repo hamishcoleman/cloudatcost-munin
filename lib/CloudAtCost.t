@@ -31,12 +31,14 @@ $request->set_urlprefix($urlprefix);
 $request->set_expectmimetype('text/html'); # silly cloudatcost
 
 $fakeua->{_content_type} = 'text/html';
-$fakeua->{_decoded_content} = '{"status":"error","time": 2, "id": "1001", "error": 104, "error_description":"invalid ip address connection" }';
+$fakeua->{_decoded_content} = '{"status":"error","time": 2, "error": 104, "error_description":"invalid ip address connection" }';
 my $result_json = $cloudatcost->query($urltail);
 ok(!defined($result_json));
 
 is($cloudatcost->error(),104);
 is($cloudatcost->error_description(),"invalid ip address connection");
+is($cloudatcost->time(),2);
+is($cloudatcost->id(),undef);
 
 $fakeua->{_decoded_content} = '{"status":"ok","time": 1, "id": "1000", "data": [{"id": "1234"}]}';
 $result_json = $cloudatcost->query($urltail);
@@ -66,6 +68,8 @@ is_deeply($result_json, {
 
 is($cloudatcost->error(),0);
 is($cloudatcost->error_description(),undef);
+is($cloudatcost->id(),1000);
+is($cloudatcost->time(),1);
 
 done_testing();
 

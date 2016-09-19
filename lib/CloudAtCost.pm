@@ -13,15 +13,17 @@ sub new {
     return $self;
 }
 
-sub set_errordata {
+sub save_result {
     my $self = shift;
     my $data = shift;
-    $self->{_error} = $data;
+    $self->{_prev} = $data;
     return $self;
 }
 
-sub error { return shift->{_error}{error} || 0; }
-sub error_description { return shift->{_error}{error_description}; }
+sub error { return shift->{_prev}{error} || 0; }
+sub error_description { return shift->{_prev}{error_description}; }
+sub id { return shift->{_prev}{id}; }
+sub time { return shift->{_prev}{time}; }
 
 sub Request { return shift->{_Request}; }
 sub set_Request {
@@ -66,14 +68,11 @@ sub query {
     my $res = $self->Request()->get($urltail);
     return undef if (!defined($res));
 
+    $self->save_result($res);
+
     if ($res->{status} eq 'error') {
-        # store this error for later examination
-        $self->set_errordata($res);
         return undef;
     }
-
-    # clear any old error
-    $self->set_errordata(undef);
 
     return $res;
 }
