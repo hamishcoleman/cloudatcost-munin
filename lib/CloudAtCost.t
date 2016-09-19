@@ -68,5 +68,13 @@ is($cloudatcost->error_description(),undef);
 is($cloudatcost->id(),1000);
 is($cloudatcost->time(),1);
 
+# Simply check that what we store as a "cache" is what we get back
+isa_ok($cloudatcost->set_Cache(101010),'CloudAtCost');
+is($cloudatcost->Cache(),101010);
+
+# FIXME - I probably should have a mock cache object that I can use to test
+# that the cache integration is working
+
+
 done_testing();
 

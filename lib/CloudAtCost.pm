@@ -33,6 +33,14 @@ sub set_Request {
     return $self;
 }
 
+sub Cache { return shift->{_Cache}; }
+sub set_Cache {
+    my $self = shift;
+    my $cache = shift;
+    $self->{_Cache} = $cache;
+    return $self;
+}
+
 sub set_credentials {
     my $self = shift;
     my $login = shift;
@@ -53,19 +61,40 @@ sub query {
         @_,
     );
 
-    # FIXME
-    # - we really should not be manually marshalling parameters - I should
-    #   just use an existing library here
+    # FIXME - this doesnt key across other fields - so if the cloudatcost API
+    # ever gets more complicated, it could lead to bad results here..
+    my $cache_key = $urltail.'_'.$fields{login};
+    $cache_key =~ s%/%_%g;
 
-    if (scalar(keys(%fields))) {
-        my @param;
-        foreach (keys(%fields)) {
-            push @param, join('=',$_,$fields{$_});
-        }
-        $urltail.='?'.join('&',@param);
+    my $cache = $self->Cache();
+
+    my $res;
+    if ($cache) {
+        $res = $cache->get($cache_key);
     }
 
-    my $res = $self->Request()->get($urltail);
+    if (!defined($res)) {
+        # either no cache, or the cache get failed
+
+        # FIXME
+        # - we really should not be manually marshalling parameters - I should
+        #   just use an existing library here
+
+        if (scalar(keys(%fields))) {
+            my @param;
+            foreach (keys(%fields)) {
+                push @param, join('=',$_,$fields{$_});
+            }
+            $urltail.='?'.join('&',@param);
+        }
+
+        $res = $self->Request()->get($urltail);
+
+        if ($cache) {
+            $cache->put($cache_key,$res);
+        }
+    }
+
     return undef if (!defined($res));
 
     $self->save_result($res);

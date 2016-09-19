@@ -20,6 +20,7 @@ $Data::Dumper::Sortkeys = 1;
 $Data::Dumper::Quotekeys = 0;
 
 use HC::CredentialStore;
+use HC::Cache::Dir;
 use REST::JSONRequest;
 use CloudAtCost;
 
@@ -32,6 +33,7 @@ my @option_list = (
     "preset|s=s",
     "credfile=s",
     "verbose|v+",
+    "cachedir=s",
 );
 
 ###############################################################################
@@ -54,6 +56,21 @@ sub do_options {
 
 ###############################################################################
 
+# FIXME - should this logic move into the cache package?
+sub calculate_cachedir {
+    if (defined($option->{cachedir})) {
+        # manually setting it on the cmdline takes precedence
+        return $option->{cachedir};
+    }
+    if (defined($ENV{'MUNIN_PLUGSTATE'})) {
+        # if we are in a nagios environment, use the same dir
+        return dirname($ENV{'MUNIN_PLUGSTATE'}).'/cloudatcost';
+    }
+
+    # finally, fall back to something in our home directory
+    return $ENV{'HOME'}.'/.cache/cloudatcost';
+}
+
 sub main() { 
     do_options($option,@option_list);
     return if (defined($option->{help}));
@@ -73,8 +90,12 @@ sub main() {
     $client->set_urlprefix('https://panel.cloudatcost.com/');
     $client->set_expectmimetype('text/html'); # silly cloudatcost
 
+    my $cache = HC::Cache::Dir->new();
+    $cache->set_cachedir(calculate_cachedir());
+
     my $cloudatcost = CloudAtCost->new();
     $cloudatcost->set_Request($client);
+    $cloudatcost->set_Cache($cache);
     $cloudatcost->set_credentials($username,$key);
 
     my $result = $cloudatcost->query('api/v1/listservers.php');
