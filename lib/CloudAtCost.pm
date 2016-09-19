@@ -74,7 +74,7 @@ sub query {
         return undef;
     }
 
-    return $res;
+    return $res->{data};
 }
 
 #https://panel.cloudatcost.com/api/v1/listservers.php?key=$x&login=$y

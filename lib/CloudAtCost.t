@@ -57,14 +57,11 @@ for my $param (split('&',$req_paramstr)) {
 }
 is_deeply($req_params,{key=>'keyval',login=>'loginval'});
 
-is_deeply($result_json, {
-    status => "ok",
-    time   => 1,
-    id     => "1000",
-    data => [ {
+is_deeply($result_json,
+    [ {
         id => "1234",
     } ]
-});
+);
 
 is($cloudatcost->error(),0);
 is($cloudatcost->error_description(),undef);
