@@ -71,6 +71,7 @@ sub main() {
 
     my $client = REST::JSONRequest->new();
     $client->set_urlprefix('https://panel.cloudatcost.com/');
+    $client->set_expectmimetype('text/html'); # silly cloudatcost
 
     my $cloudatcost = CloudAtCost->new();
     $cloudatcost->set_Request($client);
