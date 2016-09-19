@@ -13,6 +13,10 @@ sub new {
     return $self;
 }
 
+sub error { return shift->{_error} || 0; }
+
+sub error_description { return shift->{_error_description}; }
+
 sub Request { return shift->{_Request}; }
 sub set_Request {
     my $self = shift;

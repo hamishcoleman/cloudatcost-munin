@@ -57,7 +57,8 @@ is_deeply($result_json, {
     } ]
 });
 
-
+is($cloudatcost->error(),0);
+is($cloudatcost->error_description(),undef);
 
 done_testing();
 
