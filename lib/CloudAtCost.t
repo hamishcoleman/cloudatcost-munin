@@ -10,6 +10,7 @@ my $cloudatcost = CloudAtCost->new();
 isa_ok($cloudatcost,'CloudAtCost');
 
 is($cloudatcost->Request,undef);
+is($cloudatcost->Cache,undef);
 
 use REST::FakeUserAgent;
 my $fakeua = REST::FakeUserAgent->new();
@@ -57,23 +58,33 @@ for my $param (split('&',$req_paramstr)) {
 }
 is_deeply($req_params,{key=>'keyval',login=>'loginval'});
 
-is_deeply($result_json,
-    [ {
+my $expect_result_json = [ {
         id => "1234",
-    } ]
-);
+    } ];
+is_deeply($result_json,$expect_result_json);
 
 is($cloudatcost->error(),0);
 is($cloudatcost->error_description(),undef);
 is($cloudatcost->id(),1000);
 is($cloudatcost->time(),1);
 
-# Simply check that what we store as a "cache" is what we get back
-isa_ok($cloudatcost->set_Cache(101010),'CloudAtCost');
-is($cloudatcost->Cache(),101010);
+use HC::Cache::RAM;
+my $cache = HC::Cache::RAM->new();
+isa_ok($cloudatcost->set_Cache($cache),'CloudAtCost');
+isa_ok($cloudatcost->Cache,'HC::Cache::RAM');
 
-# FIXME - I probably should have a mock cache object that I can use to test
-# that the cache integration is working
+# Get a result, populating the cache as a side effect
+$result_json = $cloudatcost->query($urltail);
+is_deeply($result_json,$expect_result_json);
+
+# change the mocked result_json
+$fakeua->{_decoded_content} = '{"status":"ok","time": 3, "id": "1003", "data": [{"id": "4321"}]}';
+
+# Get another result, which should come from the cache and thus still match
+# the $expect_result_json, even though we have just changed the fakeua data
+$result_json = $cloudatcost->query($urltail);
+is_deeply($result_json,$expect_result_json);
+
 
 
 done_testing();
