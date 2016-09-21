@@ -97,9 +97,15 @@ sub main() {
     $cloudatcost->set_Cache($cache);
     $cloudatcost->set_credentials($username,$key);
 
-    my $result = $cloudatcost->query('api/v1/listservers.php');
+    print "listservers:\n";
+    my $result = $cloudatcost->listservers();
     print "Main object: ",Dumper($cloudatcost),"\n";
-    print "Result object: ",Dumper($result),"\n";
+    if (defined($result)) {
+        print "Result object: ",Dumper($result),"\n";
+    } else {
+        print "error: ",
+            $cloudatcost->error()," ",$cloudatcost->error_description,"\n";
+    }
 }
 main();
 

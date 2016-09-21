@@ -96,6 +96,10 @@ sub query {
         }
     }
 
+    if (!defined($res)) {
+        # there was an error condition, so use the error contents instead
+        $res = $self->Request()->error_content();
+    }
     return undef if (!defined($res));
 
     $self->save_result($res);
