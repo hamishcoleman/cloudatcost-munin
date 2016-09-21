@@ -158,6 +158,8 @@ sub error_status_line {
 
 sub error_content {
     my $self = shift;
+    # FIXME - if the connection timed out or had any error not from the
+    # far end application, then the decoded_content is unlikely to be JSON
     return decode_json $self->{_prev}->decoded_content;
 }
 
