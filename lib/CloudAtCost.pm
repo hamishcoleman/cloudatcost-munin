@@ -108,4 +108,11 @@ sub query {
 
 #https://panel.cloudatcost.com/api/v1/listservers.php?key=$x&login=$y
 
+sub listservers {
+    my $self = shift;
+    return $self->query('api/v1/listservers.php');
+    # TODO - turn each result an object
+}
+
+
 1;
