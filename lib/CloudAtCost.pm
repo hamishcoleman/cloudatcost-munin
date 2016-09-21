@@ -30,6 +30,7 @@ sub set_Request {
     my $self = shift;
     my $request = shift;
     $self->{_Request} = $request;
+    $request->set_expectmimetype('text/html'); # silly cloudatcost
     return $self;
 }
 

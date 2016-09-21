@@ -29,7 +29,6 @@ isa_ok($cloudatcost->set_credentials('loginval','keyval'),$classname);
 my $urlprefix = 'https://example.com/';
 
 $request->set_urlprefix($urlprefix);
-$request->set_expectmimetype('text/html'); # silly cloudatcost
 
 $fakeua->{_content_type} = 'text/html';
 $fakeua->{_decoded_content} = '{"status":"error","time": 2, "error": 104, "error_description":"invalid ip address connection" }';
