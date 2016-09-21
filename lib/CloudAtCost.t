@@ -5,9 +5,10 @@ use strict;
 BEGIN {
     use_ok('CloudAtCost');
 }
+my $classname = 'CloudAtCost';
 
 my $cloudatcost = CloudAtCost->new();
-isa_ok($cloudatcost,'CloudAtCost');
+isa_ok($cloudatcost,$classname);
 
 is($cloudatcost->Request,undef);
 is($cloudatcost->Cache,undef);
@@ -19,10 +20,10 @@ use REST::JSONRequest;
 my $request = REST::JSONRequest->new();
 $request->{_ua} = $fakeua;
 
-isa_ok($cloudatcost->set_Request($request),'CloudAtCost');
+isa_ok($cloudatcost->set_Request($request),$classname);
 isa_ok($cloudatcost->Request,'REST::JSONRequest');
 
-isa_ok($cloudatcost->set_credentials('loginval','keyval'),'CloudAtCost');
+isa_ok($cloudatcost->set_credentials('loginval','keyval'),$classname);
 # TODO - test that these values were set..
 
 my $urlprefix = 'https://example.com/';
@@ -70,7 +71,7 @@ is($cloudatcost->time(),1);
 
 use HC::Cache::RAM;
 my $cache = HC::Cache::RAM->new();
-isa_ok($cloudatcost->set_Cache($cache),'CloudAtCost');
+isa_ok($cloudatcost->set_Cache($cache),$classname);
 isa_ok($cloudatcost->Cache,'HC::Cache::RAM');
 
 # Get a result, populating the cache as a side effect

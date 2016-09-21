@@ -3,9 +3,9 @@ use Test::More;
 BEGIN {
     use_ok('REST::JSONRequest');
 }
+my $classname = 'REST::JSONRequest';
 
-my $object = REST::JSONRequest->new();
-isa_ok($object,'REST::JSONRequest', 'Create object');
+my $object = new_ok($classname);
 
 is($object->{_urlprefix},undef);
 is($object->get('api/now/table/incident'),undef);
@@ -14,14 +14,13 @@ is($object->patch('api/now/table/incident',patch=>'test'),undef);
 
 
 my $urlprefix = 'https://example.com/';
-isa_ok($object->set_urlprefix($urlprefix),'REST::JSONRequest',
-    'Set prefix');
+isa_ok($object->set_urlprefix($urlprefix),$classname, 'Set prefix');
 
 is($object->{_urlprefix},$urlprefix);
 
-isa_ok($object->set_expectmimetype("application/json"),'REST::JSONRequest');
+isa_ok($object->set_expectmimetype("application/json"),$classname);
 
-isa_ok($object->set_userpass('aaa','bbb'),'REST::JSONRequest');
+isa_ok($object->set_userpass('aaa','bbb'),$classname);
 # TODO - dig around in the _ua object looking for the auth header and confirm
 
 use REST::FakeUserAgent;
