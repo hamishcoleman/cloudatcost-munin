@@ -119,5 +119,10 @@ sub listservers {
     # TODO - turn each result an object
 }
 
+sub resources {
+    my $self = shift;
+    return $self->query('api/v1/cloudpro/resources.php');
+    # TODO - turn result into an object
+}
 
 1;

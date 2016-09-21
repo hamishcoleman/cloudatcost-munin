@@ -71,6 +71,19 @@ sub calculate_cachedir {
     return $ENV{'HOME'}.'/.cache/cloudatcost';
 }
 
+sub show_result {
+    my $cloudatcost = shift;
+    my $result = shift;
+
+    print "Main object: ",Dumper($cloudatcost),"\n";
+    if (defined($result)) {
+        print "Result object: ",Dumper($result),"\n";
+    } else {
+        print "error: ",
+            $cloudatcost->error()," ",$cloudatcost->error_description,"\n";
+    }
+}
+
 sub main() { 
     do_options($option,@option_list);
     return if (defined($option->{help}));
@@ -97,15 +110,15 @@ sub main() {
     $cloudatcost->set_Cache($cache);
     $cloudatcost->set_credentials($username,$key);
 
+    my $result;
+
     print "listservers:\n";
-    my $result = $cloudatcost->listservers();
-    print "Main object: ",Dumper($cloudatcost),"\n";
-    if (defined($result)) {
-        print "Result object: ",Dumper($result),"\n";
-    } else {
-        print "error: ",
-            $cloudatcost->error()," ",$cloudatcost->error_description,"\n";
-    }
+    $result = $cloudatcost->listservers();
+    show_result($cloudatcost,$result);
+
+    print "resources:\n";
+    $result = $cloudatcost->resources();
+    show_result($cloudatcost,$result);
 }
 main();
 

@@ -85,6 +85,14 @@ $fakeua->{_decoded_content} = '{"status":"ok","time": 3, "id": "1003", "data": [
 $result_json = $cloudatcost->listservers();
 is_deeply($result_json,$expect_result_json);
 
+$fakeua->{_decoded_content} = '{"status":"ok","time": 4, "id": "1004", "data": {"total": {"cpu_total": "5678"}}}';
+$result_json = $cloudatcost->resources();
+$expect_result_json = {
+    total => {
+        cpu_total => "5678",
+    }
+};
+is_deeply($result_json,$expect_result_json);
 
 
 done_testing();
