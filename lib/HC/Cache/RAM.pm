@@ -11,6 +11,8 @@ sub new {
     my $self = {};
     bless $self, $class;
 
+    $self->set_maxage(2*60); # TODO - is this a good default?
+
     return $self;
 }
 
