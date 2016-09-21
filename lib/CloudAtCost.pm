@@ -91,7 +91,7 @@ sub query {
 
         $res = $self->Request()->get($urltail);
 
-        if ($cache) {
+        if ($res && $cache) {
             $cache->put($cache_key,$res);
         }
     }
