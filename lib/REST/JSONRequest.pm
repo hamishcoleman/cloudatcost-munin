@@ -82,10 +82,11 @@ sub _return_json {
     my ($res) = @_;
 
     if (!$res->is_success) {
-        # TODO - more? or even just die?
-        warn $res->status_line;
+        # stash the error result so it can be examined
+        $self->{_prev} = $res;
         return undef;
     }
+    $self->{_prev} = undef;
 
     if ($res->content_type ne $self->{_mimetype}) {
         warn "unexpected content_type (".$res->content_type." != ".$self->{_mimetype}.")";
@@ -148,6 +149,16 @@ sub patch {
     my $res = $self->{_ua}->request($req);
 
     return $self->_return_json($res);
+}
+
+sub error_status_line {
+    my $self = shift;
+    return $self->{_prev}->status_line();
+}
+
+sub error_content {
+    my $self = shift;
+    return decode_json $self->{_prev}->decoded_content;
 }
 
 1;

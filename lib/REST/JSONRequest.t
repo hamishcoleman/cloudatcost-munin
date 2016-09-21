@@ -31,9 +31,12 @@ my $res;
 $object->{_ua} = $fakeua;
 
 $fakeua->{_is_success} = undef;
+$fakeua->{_status_line} = '412 Precondition Failed';
 
 $res = $object->get('api/now/table/incident');
 is($res,undef);
+is($object->error_status_line(),'412 Precondition Failed');
+is_deeply($object->error_content(),{fake=>'attrib'});
 
 $fakeua->{_is_success} = 1;
 $fakeua->{_content_type} = 'test';
