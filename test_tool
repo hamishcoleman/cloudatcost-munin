@@ -110,15 +110,43 @@ sub main() {
     $cloudatcost->set_Cache($cache);
     $cloudatcost->set_credentials($username,$key);
 
-    my $result;
-
     print "listservers:\n";
-    $result = $cloudatcost->listservers();
-    show_result($cloudatcost,$result);
+    my $servers = $cloudatcost->listservers();
+    show_result($cloudatcost,$servers);
 
     print "resources:\n";
-    $result = $cloudatcost->resources();
-    show_result($cloudatcost,$result);
+    my $resources = $cloudatcost->resources();
+    show_result($cloudatcost,$resources);
+
+    for my $name (qw(cpu ram storage)) {
+        my $used = $resources->{used}{$name.'_used'};
+        my $total = $resources->{total}{$name.'_total'};
+
+        printf("%7s : %6i/%6i (%2.2f%%)\n",
+            $name,
+            $used,
+            $total,
+            ($used/$total)*100,
+        );
+    }
+
+    print("\n");
+    for my $server (@{$servers}) {
+        printf("%s : cpu=%i / %i, ram=%2.2f / %iMB, storage=%2.2f / %iGB\n",
+            $server->{hostname},
+            $server->{cpuusage}, $server->{cpu},
+            $server->{ramusage}*1000/1024, $server->{ram},
+            $server->{hdusage}, $server->{storage},
+        );
+
+        # I saw the ramusage for one server be 524.29 out of 512, which is
+        # suspiciously like they are counting in Kibibytes and then dividing
+        # by one thousand ( 524.29*1000/1024 == 512.00 )
+
+        # The cpuusage doesnt seem to be a percentage, but that is the only
+        # thing that makes sense.  I need to do some more tests, but the
+        # panel showed 3% cpu for a cpuusage value of 20 ?!?
+    }
 }
 main();
 
