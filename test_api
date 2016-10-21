@@ -67,14 +67,83 @@ sub calculate_cachedir {
     return $ENV{'HOME'}.'/.cache/cloudatcost';
 }
 
+sub render_table {
+    my $columns = shift;
+    my $table = shift;
+    my $grid;
+
+    push @{$grid}, $columns;
+    for my $row (@{$table}) {
+        my $tmp;
+        for my $column (@{$columns}) {
+            push @{$tmp}, $row->{$column} ||'';
+        }
+        push @{$grid},$tmp;
+    }
+
+    my @col_widths;
+    for my $row (@{$grid}) {
+        for my $col (0..scalar(@{$columns})-1) {
+            my $this_len = length($row->[$col]) ||0;
+            my $col_width = $col_widths[$col]||0;
+            if ($this_len > $col_width) {
+                $col_widths[$col] = length($row->[$col])
+            }
+        }
+    }
+
+    my @s;
+    for my $row (@{$grid}) {
+        for my $col (0..scalar(@{$columns})-1) {
+            push @s, sprintf("%*s ",$col_widths[$col],$row->[$col]);
+        }
+        push @s, "\n";
+    }
+    return join('',@s);
+}
+
 sub cmd_listservers {
     my $service = shift;
-    return $service->listservers();
+    my $servers = $service->listservers();
+    my $s = '';
+
+    if ($option->{verbose}) {
+        $s .= "\n".Dumper($servers)."\n";
+    }
+
+    my @columns = qw(sid hostname ip cpu ram storage);
+    $s .= render_table(\@columns, $servers);
+
+    return $s;
 }
 
 sub cmd_resources {
     my $service = shift;
-    return $service->resources();
+    my $resources = $service->resources();
+    my $s = '';
+
+    if ($option->{verbose}) {
+        $s .= "\n".Dumper($resources)."\n";
+    }
+
+    my $table;
+    $table->[0] = {
+        type    => 'used',
+        cpu     => $resources->{used}{cpu_used},
+        ram     => $resources->{used}{ram_used},
+        storage => $resources->{used}{storage_used},
+    };
+    $table->[1] = {
+        type    => 'total',
+        cpu     => $resources->{total}{cpu_total},
+        ram     => $resources->{total}{ram_total},
+        storage => $resources->{total}{storage_total},
+    };
+
+    my @columns = qw(type cpu ram storage);
+    $s .= render_table(\@columns, $table);
+
+    return $s;
 }
 
 sub cmd_fixme {
@@ -166,7 +235,7 @@ sub main() {
     }
 
     my $result = $cmds->{$cmd}{'cmd'}($cloudatcost,@ARGV);
-    print Dumper($result);
+    print $result;
 }
 main();
 
