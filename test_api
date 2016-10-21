@@ -124,7 +124,7 @@ sub cmd_listservers {
         $s .= "\n".Dumper($servers)."\n";
     }
 
-    my @columns = qw(sid hostname ip cpu ram storage);
+    my @columns = qw(sid hostname ip cpu ram storage mode status);
     $s .= render_table(\@columns, $servers);
 
     return $s;
