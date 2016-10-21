@@ -125,6 +125,16 @@ sub listtemplates {
     # TODO - turn each result an object
 }
 
+sub listtasks {
+    die("Not implemented");
+    # currently untestable:
+    # returns the string "Unknown column 'iod.apitask.cid' in 'field list'"
+    # which is clearly not json, nor is it useful
+    my $self = shift;
+    return $self->query('api/v1/listtasks.php');
+    # TODO - turn each result an object
+}
+
 sub resources {
     my $self = shift;
     return $self->query('api/v1/cloudpro/resources.php');

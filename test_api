@@ -132,6 +132,21 @@ sub cmd_listtemplates {
     return $s;
 }
 
+sub cmd_listtasks {
+    my $service = shift;
+    my $result = $service->listtasks();
+    my $s = '';
+
+    if ($option->{verbose}) {
+        $s .= "\n".Dumper($result)."\n";
+    }
+
+    my @columns = qw(cid starttime serverid action status servername);
+    $s .= render_table(\@columns, $result);
+
+    return $s;
+}
+
 sub cmd_resources {
     my $service = shift;
     my $resources = $service->resources();
@@ -175,8 +190,8 @@ my $cmds = {
         help => 'List all templates available',
     },
     'listtasks' => {
-        cmd  => \&cmd_fixme,
-        help => 'List all servers on the account',
+        cmd  => \&cmd_listtasks,
+        help => 'List all tasks in operation',
     },
     'powerop' => {
         cmd  => \&cmd_fixme,
