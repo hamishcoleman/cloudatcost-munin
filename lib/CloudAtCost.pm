@@ -65,6 +65,9 @@ sub query {
     my $nocache = $fields{_nocache} ||0;
     delete $fields{_nocache};
 
+    my $method = $fields{_method} ||'get';
+    delete $fields{_method};
+
     # FIXME - this doesnt key across other fields - so if the cloudatcost API
     # ever gets more complicated, it could lead to bad results here..
     my $cache_key = $urltail.'_'.$fields{login};
@@ -84,15 +87,25 @@ sub query {
         # - we really should not be manually marshalling parameters - I should
         #   just use an existing library here
 
+        my $url_fields;
         if (scalar(keys(%fields))) {
             my @param;
+
             foreach (keys(%fields)) {
                 push @param, join('=',$_,$fields{$_});
             }
-            $urltail.='?'.join('&',@param);
+            $url_fields = join('&',@param);
         }
 
-        $res = $self->Request()->get($urltail);
+        if ($method eq 'get') {
+            $res = $self->Request()->get($urltail.'?'.$url_fields);
+        } elsif ($method eq 'post') {
+            $res = $self->Request()->post_rawcontent(
+                $urltail,'application/x-www-form-urlencoded',$url_fields
+            );
+        } else {
+            die("Unknown HTTP method");
+        }
 
         if ($res && $cache) {
             $cache->put($cache_key,$res);
@@ -152,6 +165,7 @@ sub powerop {
 
     return $self->query('api/v1/powerop.php',
         _nocache=>1,
+        _method=>'post',
         sid=>$sid,
         action=>$action,
     );
