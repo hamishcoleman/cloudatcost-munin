@@ -221,6 +221,12 @@ sub cmd_build {
     return $s;
 }
 
+sub cmd_delete {
+    my $service = shift;
+    # sid
+    return simple_action($service,'delete',@_);
+}
+
 sub cmd_resources {
     my $service = shift;
     my $resources = $service->resources();
@@ -292,7 +298,7 @@ my $cmds = {
         help => 'Build a server from available resources',
     },
     'cloudpro/delete' => {
-        cmd  => \&cmd_fixme,
+        cmd  => \&cmd_delete,
         help => 'Delete / terminate server to add resources',
     },
     'cloudpro/resources' => {
