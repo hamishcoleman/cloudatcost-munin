@@ -197,8 +197,6 @@ sub cmd_console {
     my $result = $service->prev_full_result();
     if (defined($result->{console})) {
         $s.=$result->{console}."\n";
-    } else {
-        $s.="wierd\n";
     }
     return $s;
 }
@@ -215,8 +213,6 @@ sub cmd_build {
     my $result = $service->prev_full_result();
     if (defined($result->{taskid})) {
         $s.=$result->{taskid}."\n";
-    } else {
-        $s.="wierd\n";
     }
     return $s;
 }
