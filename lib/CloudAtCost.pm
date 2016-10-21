@@ -253,13 +253,16 @@ sub build {
         return undef if (!defined($fields{$key}));
     }
 
-    # parameter restrictions taken from the api-details document
-
+    # these three have not been tested, they are just taken from the api-details
     return undef if ($fields{cpu}>16);
     return undef if ($fields{ram}>32768);
     return undef if ($fields{storage}>1000);
 
-    # dont enforce these, until I can confirm them..
+    # these two were tested by trial and error against the API
+    return undef if ($fields{ram}<510);
+    return undef if ($fields{storage}<10);
+
+    # these two are in the api-details doc, but dont appear to be right..
     #return undef if ($fields{ram}%1024 != 0);
     #return undef if ($fields{storage}%10 != 0);
 
