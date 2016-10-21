@@ -2,8 +2,7 @@
 use warnings;
 use strict;
 #
-# Quick commandline tool to call the interface libraries and confirm that
-# things work
+# Quick commandline tool to call each cloudatcost API entry point
 #
 
 # allow the libs to be in the bin dir
@@ -34,6 +33,7 @@ my @option_list = (
     "credfile=s",
     "verbose|v+",
     "cachedir=s",
+    "help",
 );
 
 ###############################################################################
@@ -62,18 +62,81 @@ sub calculate_cachedir {
         # manually setting it on the cmdline takes precedence
         return $option->{cachedir};
     }
-    if (defined($ENV{'MUNIN_PLUGSTATE'})) {
-        # if we are in a nagios environment, use the same dir
-        return dirname($ENV{'MUNIN_PLUGSTATE'}).'/cloudatcost';
-    }
 
     # finally, fall back to something in our home directory
     return $ENV{'HOME'}.'/.cache/cloudatcost';
 }
 
+sub cmd_listservers {
+    my $service = shift;
+    return $service->listservers();
+}
+
+sub cmd_resources {
+    my $service = shift;
+    return $service->resources();
+}
+
+sub cmd_fixme {
+    die "FIXME";
+}
+
+my $cmds = {
+    'listservers'   => {
+        cmd  => \&cmd_listservers,
+        help => 'List all servers on the account',
+    },
+    'listtemplates' => {
+        cmd  => \&cmd_fixme,
+        help => 'List all servers on the account',
+    },
+    'listtasks' => {
+        cmd  => \&cmd_fixme,
+        help => 'List all servers on the account',
+    },
+    'powerop' => {
+        cmd  => \&cmd_fixme,
+        help => 'List all servers on the account',
+    },
+    'runmode' => {
+        cmd  => \&cmd_fixme,
+        help => 'Set the run mode of the server',
+    },
+    'renameserver' => {
+        cmd  => \&cmd_fixme,
+        help => 'Rename the server label',
+    },
+    'rdns' => {
+        cmd  => \&cmd_fixme,
+        help => 'Modify the reverse DNS & hostname of the VPS',
+    },
+    'console' => {
+        cmd  => \&cmd_fixme,
+        help => 'Request URL for console access',
+    },
+    'cloudpro/build' => {
+        cmd  => \&cmd_fixme,
+        help => 'Build a server from available resources',
+    },
+    'cloudpro/delete' => {
+        cmd  => \&cmd_fixme,
+        help => 'Delete / terminate server to add resources',
+    },
+    'cloudpro/resources' => {
+        cmd  => \&cmd_resources,
+        help => 'Display resources available and resources used in cloud-pro',
+    },
+};
+
 sub main() { 
     do_options($option,@option_list);
-    return if (defined($option->{help}));
+    if (defined($option->{help})) {
+        print("Sub commands:\n\n");
+        for my $cmd (sort(keys(%{$cmds}))) {
+            printf("%-18s %s\n",$cmd,$cmds->{$cmd}{help});
+        }
+        return;
+    }
 
     my ($username,$key);
     if (defined($option->{credfile})) {
@@ -97,38 +160,13 @@ sub main() {
     $cloudatcost->set_Cache($cache);
     $cloudatcost->set_credentials($username,$key);
 
-    my $servers = $cloudatcost->listservers();
-    my $resources = $cloudatcost->resources();
-
-    for my $name (qw(cpu ram storage)) {
-        my $used = $resources->{used}{$name.'_used'};
-        my $total = $resources->{total}{$name.'_total'};
-
-        printf("%7s : %6i/%6i (%2.2f%%)\n",
-            $name,
-            $used,
-            $total,
-            ($used/$total)*100,
-        );
+    my $cmd = shift(@ARGV);
+    if (!defined($cmd) || !defined($cmds->{$cmd})) {
+        die('No such sub-command');
     }
 
-    print("\n");
-    for my $server (@{$servers}) {
-        printf("%s : cpu=%i / %i, ram=%2.2f / %iMB, storage=%2.2f / %iGB\n",
-            $server->{hostname},
-            $server->{cpuusage}, $server->{cpu},
-            $server->{ramusage}*1000/1024, $server->{ram},
-            $server->{hdusage}, $server->{storage},
-        );
-
-        # I saw the ramusage for one server be 524.29 out of 512, which is
-        # suspiciously like they are counting in Kibibytes and then dividing
-        # by one thousand ( 524.29*1000/1024 == 512.00 )
-
-        # The cpuusage doesnt seem to be a percentage, but that is the only
-        # thing that makes sense.  I need to do some more tests, but the
-        # panel showed 3% cpu for a cpuusage value of 20 ?!?
-    }
+    my $result = $cmds->{$cmd}{'cmd'}($cloudatcost,@ARGV);
+    print Dumper($result);
 }
 main();
 
