@@ -170,7 +170,13 @@ sub cmd_powerop {
     die("need action") if (!defined($action));
     my $result = $service->powerop($sid,$action);
     return render_error($service) if (!defined($result));
-    return $result;
+    my $s = '';
+
+    if ($option->{verbose}) {
+        $s .= "\n".Dumper($result)."\n";
+    }
+    $s.="OK\n";
+    return $s;
 }
 
 sub cmd_resources {
