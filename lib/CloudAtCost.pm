@@ -240,6 +240,34 @@ sub console {
     );
 }
 
+sub build {
+    my $self = shift;
+    my %fields = (
+        @_,
+    );
+
+    # TODO - when we have server objects, a class new function maps to this
+
+    $self->save_result({ error => -1, error_description => "parameters" });
+    for my $key (qw(cpu ram storage os)) {
+        return undef if (!defined($fields{$key}));
+    }
+
+    # parameter restrictions taken from the api-details document
+
+    return undef if ($fields{cpu}>16);
+    return undef if ($fields{ram}>32768);
+    return undef if ($fields{storage}>1000);
+
+    return undef if ($fields{ram}%1024 != 0);
+    return undef if ($fields{storage}%10 != 0);
+
+    $self->save_result({ error => -1, error_description => "wierd" });
+    $fields{_nocache} = 1;
+    $fields{_method} = 'post';
+    return $self->query('api/v1/cloudpro/build.php', %fields);
+}
+
 sub resources {
     my $self = shift;
     return $self->query('api/v1/cloudpro/resources.php');

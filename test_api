@@ -250,6 +250,29 @@ sub cmd_console {
     return $s;
 }
 
+sub cmd_build {
+    my $service = shift;
+    my %fields;
+    for my $param (@_) {
+        my ($key,$val) = split('=',$param);
+        $fields{$key} = $val;
+    }
+    my $result = $service->build(%fields);
+    return render_error($service) if (!defined($result));
+    my $s = '';
+
+    $result = $service->prev_full_result();
+    if ($option->{verbose}) {
+        $s .= "\n".Dumper($result)."\n";
+    }
+    if (defined($result->{taskid})) {
+        $s.=$result->{taskid}."\n";
+    } else {
+        $s.="wierd\n";
+    }
+    return $s;
+}
+
 sub cmd_resources {
     my $service = shift;
     my $resources = $service->resources();
@@ -317,7 +340,7 @@ my $cmds = {
         help => 'Request URL for console access',
     },
     'cloudpro/build' => {
-        cmd  => \&cmd_fixme,
+        cmd  => \&cmd_build,
         help => 'Build a server from available resources',
     },
     'cloudpro/delete' => {
