@@ -102,9 +102,22 @@ sub render_table {
     return join('',@s);
 }
 
+sub render_error {
+    my $service = shift;
+    my $s;
+
+    if ($option->{verbose}) {
+        $s .= "\n".Dumper($service)."\n";
+    }
+
+    $s .= "error: ".$service->error()." ".$service->error_description."\n";
+    return $s;
+}
+
 sub cmd_listservers {
     my $service = shift;
     my $servers = $service->listservers();
+    return render_error($service) if (!defined($servers));
     my $s = '';
 
     if ($option->{verbose}) {
@@ -120,6 +133,7 @@ sub cmd_listservers {
 sub cmd_listtemplates {
     my $service = shift;
     my $templates = $service->listtemplates();
+    return render_error($service) if (!defined($templates));
     my $s = '';
 
     if ($option->{verbose}) {
@@ -135,6 +149,7 @@ sub cmd_listtemplates {
 sub cmd_listtasks {
     my $service = shift;
     my $result = $service->listtasks();
+    return render_error($service) if (!defined($result));
     my $s = '';
 
     if ($option->{verbose}) {
@@ -154,6 +169,7 @@ sub cmd_powerop {
     die("need sid") if (!defined($sid));
     die("need action") if (!defined($action));
     my $result = $service->powerop($sid,$action);
+    return render_error($service) if (!defined($result));
     return $result;
 }
 
