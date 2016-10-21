@@ -259,8 +259,9 @@ sub build {
     return undef if ($fields{ram}>32768);
     return undef if ($fields{storage}>1000);
 
-    return undef if ($fields{ram}%1024 != 0);
-    return undef if ($fields{storage}%10 != 0);
+    # dont enforce these, until I can confirm them..
+    #return undef if ($fields{ram}%1024 != 0);
+    #return undef if ($fields{storage}%10 != 0);
 
     $self->save_result({ error => -1, error_description => "wierd" });
     $fields{_nocache} = 1;
