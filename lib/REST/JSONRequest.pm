@@ -93,7 +93,16 @@ sub _return_json {
         return undef;
     }
 
-    return decode_json $res->decoded_content;
+    my $json;
+    # just return an undef if we cannot decode the content
+    eval {
+        $json = decode_json($res->decoded_content);
+    };
+    if (!defined($json)) {
+        $self->{_prev} = $res;
+    }
+
+    return $json;
 }
 
 sub get {
@@ -169,9 +178,15 @@ sub error_status_line {
 
 sub error_content {
     my $self = shift;
-    # FIXME - if the connection timed out or had any error not from the
-    # far end application, then the decoded_content is unlikely to be JSON
-    return decode_json $self->{_prev}->decoded_content;
+    return undef if (!defined($self->{_prev}));
+
+    my $json;
+    # just return an undef if we cannot decode the content
+    eval {
+        $json = decode_json($self->{_prev}->decoded_content);
+    };
+
+    return $json;
 }
 
 1;
