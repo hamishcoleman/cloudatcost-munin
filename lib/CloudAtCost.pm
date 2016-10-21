@@ -188,6 +188,40 @@ sub runmode {
     );
 }
 
+sub renameserver {
+    my $self = shift;
+    my $sid = shift;
+    my $name = shift;
+    # TODO - when we have server objects, they need actions that map to this
+
+    return undef if (!defined($sid));
+    return undef if (!defined($name));
+
+    return $self->query('api/v1/renameserver.php',
+        _nocache=>1,
+        _method=>'post',
+        sid=>$sid,
+        name=>$name,
+    );
+}
+
+sub rdns {
+    my $self = shift;
+    my $sid = shift;
+    my $hostname = shift;
+    # TODO - when we have server objects, they need actions that map to this
+
+    return undef if (!defined($sid));
+    return undef if (!defined($hostname));
+
+    return $self->query('api/v1/rdns.php',
+        _nocache=>1,
+        _method=>'post',
+        sid=>$sid,
+        hostname=>$hostname,
+    );
+}
+
 sub resources {
     my $self = shift;
     return $self->query('api/v1/cloudpro/resources.php');

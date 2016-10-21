@@ -196,6 +196,40 @@ sub cmd_runmode {
     return $s;
 }
 
+sub cmd_renameserver {
+    my $service = shift;
+    my $sid = shift;
+    my $name = shift;
+    die("need sid") if (!defined($sid));
+    die("need name") if (!defined($name));
+    my $result = $service->renameserver($sid,$name);
+    return render_error($service) if (!defined($result));
+    my $s = '';
+
+    if ($option->{verbose}) {
+        $s .= "\n".Dumper($result)."\n";
+    }
+    $s.="OK\n";
+    return $s;
+}
+
+sub cmd_rdns {
+    my $service = shift;
+    my $sid = shift;
+    my $hostname = shift;
+    die("need sid") if (!defined($sid));
+    die("need hostname") if (!defined($hostname));
+    my $result = $service->rdns($sid,$hostname);
+    return render_error($service) if (!defined($result));
+    my $s = '';
+
+    if ($option->{verbose}) {
+        $s .= "\n".Dumper($result)."\n";
+    }
+    $s.="OK\n";
+    return $s;
+}
+
 sub cmd_resources {
     my $service = shift;
     my $resources = $service->resources();
@@ -251,11 +285,11 @@ my $cmds = {
         help => 'Set the run mode of the server',
     },
     'renameserver' => {
-        cmd  => \&cmd_fixme,
+        cmd  => \&cmd_renameserver,
         help => 'Rename the server label',
     },
     'rdns' => {
-        cmd  => \&cmd_fixme,
+        cmd  => \&cmd_rdns,
         help => 'Modify the reverse DNS & hostname of the VPS',
     },
     'console' => {
