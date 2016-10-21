@@ -268,6 +268,22 @@ sub build {
     return $self->query('api/v1/cloudpro/build.php', %fields);
 }
 
+sub delete {
+    die("Not implemented");
+    # until I can build a throw-away server, I cannot test this
+    my $self = shift;
+    my $sid = shift;
+    # TODO - when we have server objects, they need actions that map to this
+
+    return undef if (!defined($sid));
+
+    return $self->query('api/v1/cloudpro/delete.php',
+        _nocache=>1,
+        _method=>'post',
+        sid=>$sid,
+    );
+}
+
 sub resources {
     my $self = shift;
     return $self->query('api/v1/cloudpro/resources.php');
