@@ -114,134 +114,87 @@ sub render_error {
     return $s;
 }
 
-sub cmd_listservers {
+sub simple_query {
     my $service = shift;
-    my $servers = $service->listservers();
-    return render_error($service) if (!defined($servers));
+    my $method = shift;
+    my $result = $service->$method();
+    return render_error($service) if (!defined($result));
     my $s = '';
 
     if ($option->{verbose}) {
-        $s .= "\n".Dumper($servers)."\n";
+        $s .= "\n".Dumper($result)."\n";
     }
 
-    my @columns = qw(sid hostname ip cpu ram storage mode status);
-    $s .= render_table(\@columns, $servers);
+    $s .= render_table(\@_, $result);
 
     return $s;
+}
+
+sub simple_action {
+    my $service = shift;
+    my $method = shift;
+    my $result = $service->$method(@_);
+    return render_error($service) if (!defined($result));
+    my $s = '';
+
+    if ($option->{verbose}) {
+        $s .= "\n".Dumper($service->prev_full_result())."\n";
+    }
+    $s.="OK\n";
+    return $s;
+}
+
+sub cmd_listservers {
+    my $service = shift;
+    return simple_query($service,'listservers',
+        qw(sid hostname ip cpu ram storage mode status)
+    );
 }
 
 sub cmd_listtemplates {
     my $service = shift;
-    my $templates = $service->listtemplates();
-    return render_error($service) if (!defined($templates));
-    my $s = '';
-
-    if ($option->{verbose}) {
-        $s .= "\n".Dumper($templates)."\n";
-    }
-
-    my @columns = qw(ce_id name);
-    $s .= render_table(\@columns, $templates);
-
-    return $s;
+    return simple_query($service,'listtemplates',
+        qw(ce_id name)
+    );
 }
 
 sub cmd_listtasks {
     my $service = shift;
-    my $result = $service->listtasks();
-    return render_error($service) if (!defined($result));
-    my $s = '';
-
-    if ($option->{verbose}) {
-        $s .= "\n".Dumper($result)."\n";
-    }
-
-    my @columns = qw(cid starttime serverid action status servername);
-    $s .= render_table(\@columns, $result);
-
-    return $s;
+    return simple_query($service,'listtasks',
+        qw(cid starttime serverid action status servername)
+    );
 }
 
 sub cmd_powerop {
     my $service = shift;
-    my $sid = shift;
-    my $action = shift;
-    die("need sid") if (!defined($sid));
-    die("need action") if (!defined($action));
-    my $result = $service->powerop($sid,$action);
-    return render_error($service) if (!defined($result));
-    my $s = '';
-
-    if ($option->{verbose}) {
-        $s .= "\n".Dumper($result)."\n";
-    }
-    $s.="OK\n";
-    return $s;
+    # sid, action
+    return simple_action($service,'powerop',@_);
 }
 
 sub cmd_runmode {
     my $service = shift;
-    my $sid = shift;
-    my $mode = shift;
-    die("need sid") if (!defined($sid));
-    die("need mode") if (!defined($mode));
-    my $result = $service->runmode($sid,$mode);
-    return render_error($service) if (!defined($result));
-    my $s = '';
-
-    if ($option->{verbose}) {
-        $s .= "\n".Dumper($result)."\n";
-    }
-    $s.="OK\n";
-    return $s;
+    # sid, mode
+    return simple_action($service,'runmode',@_);
 }
 
 sub cmd_renameserver {
     my $service = shift;
-    my $sid = shift;
-    my $name = shift;
-    die("need sid") if (!defined($sid));
-    die("need name") if (!defined($name));
-    my $result = $service->renameserver($sid,$name);
-    return render_error($service) if (!defined($result));
-    my $s = '';
-
-    if ($option->{verbose}) {
-        $s .= "\n".Dumper($result)."\n";
-    }
-    $s.="OK\n";
-    return $s;
+    # sid, name
+    return simple_action($service,'renameserver',@_);
 }
 
 sub cmd_rdns {
     my $service = shift;
-    my $sid = shift;
-    my $hostname = shift;
-    die("need sid") if (!defined($sid));
-    die("need hostname") if (!defined($hostname));
-    my $result = $service->rdns($sid,$hostname);
-    return render_error($service) if (!defined($result));
-    my $s = '';
-
-    if ($option->{verbose}) {
-        $s .= "\n".Dumper($result)."\n";
-    }
-    $s.="OK\n";
-    return $s;
+    # sid, hostname
+    return simple_action($service,'rdns',@_);
 }
 
 sub cmd_console {
     my $service = shift;
-    my $sid = shift;
-    die("need sid") if (!defined($sid));
-    my $result = $service->console($sid);
-    return render_error($service) if (!defined($result));
-    my $s = '';
+    # sid
+    my $s = simple_action($service,'console',@_);
 
-    $result = $service->prev_full_result();
-    if ($option->{verbose}) {
-        $s .= "\n".Dumper($result)."\n";
-    }
+    my $result = $service->prev_full_result();
     if (defined($result->{console})) {
         $s.=$result->{console}."\n";
     } else {
@@ -257,14 +210,9 @@ sub cmd_build {
         my ($key,$val) = split('=',$param);
         $fields{$key} = $val;
     }
-    my $result = $service->build(%fields);
-    return render_error($service) if (!defined($result));
-    my $s = '';
+    my $s = simple_action($service,'build',%fields);
 
-    $result = $service->prev_full_result();
-    if ($option->{verbose}) {
-        $s .= "\n".Dumper($result)."\n";
-    }
+    my $result = $service->prev_full_result();
     if (defined($result->{taskid})) {
         $s.=$result->{taskid}."\n";
     } else {
