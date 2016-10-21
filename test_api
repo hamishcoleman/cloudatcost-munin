@@ -230,6 +230,26 @@ sub cmd_rdns {
     return $s;
 }
 
+sub cmd_console {
+    my $service = shift;
+    my $sid = shift;
+    die("need sid") if (!defined($sid));
+    my $result = $service->console($sid);
+    return render_error($service) if (!defined($result));
+    my $s = '';
+
+    $result = $service->prev_full_result();
+    if ($option->{verbose}) {
+        $s .= "\n".Dumper($result)."\n";
+    }
+    if (defined($result->{console})) {
+        $s.=$result->{console}."\n";
+    } else {
+        $s.="wierd\n";
+    }
+    return $s;
+}
+
 sub cmd_resources {
     my $service = shift;
     my $resources = $service->resources();
@@ -293,7 +313,7 @@ my $cmds = {
         help => 'Modify the reverse DNS & hostname of the VPS',
     },
     'console' => {
-        cmd  => \&cmd_fixme,
+        cmd  => \&cmd_console,
         help => 'Request URL for console access',
     },
     'cloudpro/build' => {

@@ -20,6 +20,7 @@ sub save_result {
     return $self;
 }
 
+sub prev_full_result { return shift->{_prev} || 0; }
 sub error { return shift->{_prev}{error} || 0; }
 sub error_description { return shift->{_prev}{error_description}; }
 sub id { return shift->{_prev}{id}; }
@@ -219,6 +220,23 @@ sub rdns {
         _method=>'post',
         sid=>$sid,
         hostname=>$hostname,
+    );
+}
+
+sub console {
+    die("Not implemented");
+    # currently untestable:
+    # returns an empty string, which is clearly not useful
+    my $self = shift;
+    my $sid = shift;
+    # TODO - when we have server objects, they need actions that map to this
+
+    return undef if (!defined($sid));
+
+    return $self->query('api/v1/console.php',
+        _nocache=>1,
+        _method=>'post',
+        sid=>$sid,
     );
 }
 
