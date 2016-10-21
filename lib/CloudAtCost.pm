@@ -62,6 +62,9 @@ sub query {
         @_,
     );
 
+    my $nocache = $fields{_nocache} ||0;
+    delete $fields{_nocache};
+
     # FIXME - this doesnt key across other fields - so if the cloudatcost API
     # ever gets more complicated, it could lead to bad results here..
     my $cache_key = $urltail.'_'.$fields{login};
@@ -70,7 +73,7 @@ sub query {
     my $cache = $self->Cache();
 
     my $res;
-    if ($cache) {
+    if ($cache && !$nocache) {
         $res = $cache->get($cache_key);
     }
 
@@ -108,7 +111,10 @@ sub query {
         return undef;
     }
 
-    return $res->{data};
+    if (defined($res->{data})) {
+        return $res->{data};
+    }
+    return 1; # success
 }
 
 #https://panel.cloudatcost.com/api/v1/listservers.php?key=$x&login=$y
@@ -133,6 +139,22 @@ sub listtasks {
     my $self = shift;
     return $self->query('api/v1/listtasks.php');
     # TODO - turn each result an object
+}
+
+sub powerop {
+    my $self = shift;
+    my $sid = shift;
+    my $action = shift;
+    # TODO - when we have server objects, they need actions that map to this
+
+    return undef if (!defined($sid));
+    return undef if (!defined($action));
+
+    return $self->query('api/v1/powerop.php',
+        _nocache=>1,
+        sid=>$sid,
+        action=>$action,
+    );
 }
 
 sub resources {

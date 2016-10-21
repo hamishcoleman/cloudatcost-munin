@@ -147,6 +147,16 @@ sub cmd_listtasks {
     return $s;
 }
 
+sub cmd_powerop {
+    my $service = shift;
+    my $sid = shift;
+    my $action = shift;
+    die("need sid") if (!defined($sid));
+    die("need action") if (!defined($action));
+    my $result = $service->powerop($sid,$action);
+    return $result;
+}
+
 sub cmd_resources {
     my $service = shift;
     my $resources = $service->resources();
@@ -194,8 +204,8 @@ my $cmds = {
         help => 'List all tasks in operation',
     },
     'powerop' => {
-        cmd  => \&cmd_fixme,
-        help => 'List all servers on the account',
+        cmd  => \&cmd_powerop,
+        help => 'Activate server power operations',
     },
     'runmode' => {
         cmd  => \&cmd_fixme,
