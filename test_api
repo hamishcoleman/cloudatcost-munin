@@ -117,6 +117,21 @@ sub cmd_listservers {
     return $s;
 }
 
+sub cmd_listtemplates {
+    my $service = shift;
+    my $templates = $service->listtemplates();
+    my $s = '';
+
+    if ($option->{verbose}) {
+        $s .= "\n".Dumper($templates)."\n";
+    }
+
+    my @columns = qw(ce_id name);
+    $s .= render_table(\@columns, $templates);
+
+    return $s;
+}
+
 sub cmd_resources {
     my $service = shift;
     my $resources = $service->resources();
@@ -156,8 +171,8 @@ my $cmds = {
         help => 'List all servers on the account',
     },
     'listtemplates' => {
-        cmd  => \&cmd_fixme,
-        help => 'List all servers on the account',
+        cmd  => \&cmd_listtemplates,
+        help => 'List all templates available',
     },
     'listtasks' => {
         cmd  => \&cmd_fixme,

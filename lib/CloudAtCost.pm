@@ -119,6 +119,12 @@ sub listservers {
     # TODO - turn each result an object
 }
 
+sub listtemplates {
+    my $self = shift;
+    return $self->query('api/v1/listtemplates.php');
+    # TODO - turn each result an object
+}
+
 sub resources {
     my $self = shift;
     return $self->query('api/v1/cloudpro/resources.php');
