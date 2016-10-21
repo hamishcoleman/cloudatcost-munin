@@ -107,6 +107,22 @@ sub get {
     return $self->_return_json($res);
 }
 
+sub post_rawcontent {
+    my $self = shift;
+    my $urlsuffix = shift;
+    my $content_type = shift;
+    my $rawcontent = shift;
+
+    return undef if (!defined($self->_check_urlprefix()));
+
+    my $res = $self->{_ua}->post(
+        $self->urlprefix().$urlsuffix,
+        'Content-type' => $content_type,
+        'Content' => $rawcontent,
+    );
+    return $self->_return_json($res);
+}
+
 sub post {
     my $self = shift;
     my $urlsuffix = shift;
@@ -118,12 +134,7 @@ sub post {
 
     my $args_json = encode_json \%args;
 
-    my $res = $self->{_ua}->post(
-        $self->urlprefix().$urlsuffix,
-        'Content-type' => 'application/json',
-        'Content' => $args_json,
-    );
-    return $self->_return_json($res);
+    return $self->post_rawcontent($urlsuffix,'application/json',$args_json);
 }
 
 sub patch {
