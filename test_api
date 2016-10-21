@@ -179,6 +179,23 @@ sub cmd_powerop {
     return $s;
 }
 
+sub cmd_runmode {
+    my $service = shift;
+    my $sid = shift;
+    my $mode = shift;
+    die("need sid") if (!defined($sid));
+    die("need mode") if (!defined($mode));
+    my $result = $service->runmode($sid,$mode);
+    return render_error($service) if (!defined($result));
+    my $s = '';
+
+    if ($option->{verbose}) {
+        $s .= "\n".Dumper($result)."\n";
+    }
+    $s.="OK\n";
+    return $s;
+}
+
 sub cmd_resources {
     my $service = shift;
     my $resources = $service->resources();
@@ -230,7 +247,7 @@ my $cmds = {
         help => 'Activate server power operations',
     },
     'runmode' => {
-        cmd  => \&cmd_fixme,
+        cmd  => \&cmd_runmode,
         help => 'Set the run mode of the server',
     },
     'renameserver' => {

@@ -171,6 +171,23 @@ sub powerop {
     );
 }
 
+sub runmode {
+    my $self = shift;
+    my $sid = shift;
+    my $mode = shift;
+    # TODO - when we have server objects, they need actions that map to this
+
+    return undef if (!defined($sid));
+    return undef if (!defined($mode));
+
+    return $self->query('api/v1/runmode.php',
+        _nocache=>1,
+        _method=>'post',
+        sid=>$sid,
+        mode=>$mode,
+    );
+}
+
 sub resources {
     my $self = shift;
     return $self->query('api/v1/cloudpro/resources.php');
