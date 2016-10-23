@@ -214,6 +214,9 @@ sub cmd_build {
     if (defined($result->{taskid})) {
         $s.=$result->{taskid}."\n";
     }
+    if (defined($result->{servername})) {
+        $s.=$result->{servername}."\n";
+    }
     return $s;
 }
 
