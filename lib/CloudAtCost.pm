@@ -273,8 +273,6 @@ sub build {
 }
 
 sub delete {
-    die("Not implemented");
-    # until I can build a throw-away server, I cannot test this
     my $self = shift;
     my $sid = shift;
     # TODO - when we have server objects, they need actions that map to this
