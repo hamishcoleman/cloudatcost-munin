@@ -19,6 +19,7 @@ $Data::Dumper::Indent = 1;
 $Data::Dumper::Sortkeys = 1;
 $Data::Dumper::Quotekeys = 0;
 
+use HC::Common;
 use HC::CredentialStore;
 use HC::Cache::Dir;
 use REST::JSONRequest;
@@ -36,26 +37,6 @@ my @option_list = (
     "cachedir=s",
 );
 
-###############################################################################
-##
-## Standard options processor
-sub do_options {
-    my $option = shift;
-    if (!GetOptions($option,@_)) {
-        print("Options: ",join(", ",@_),"\n");
-        pod2usage(2);
-    }
-    if ($option->{man}) {
-        pod2usage(-exitstatus => 0, -verbose => 2);
-    }
-
-    if ($option->{quiet}) {
-        delete $option->{verbose};
-    }
-}
-
-###############################################################################
-
 # FIXME - should this logic move into the cache package?
 sub calculate_cachedir {
     if (defined($option->{cachedir})) {
@@ -72,7 +53,7 @@ sub calculate_cachedir {
 }
 
 sub main() { 
-    do_options($option,@option_list);
+    HC::Common::do_options($option,@option_list);
     return if (defined($option->{help}));
 
     my ($username,$key);
