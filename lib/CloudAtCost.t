@@ -42,7 +42,18 @@ is($cloudatcost->error_description(),"invalid ip address connection");
 is($cloudatcost->time(),2);
 is($cloudatcost->id(),undef);
 
-$fakeua->{_decoded_content} = '{"status":"ok","time": 1, "id": "1000", "data": [{"id": "1234"}]}';
+$fakeua->{_decoded_content} = <<EOF;
+{
+    "status": "ok",
+    "time":   1,
+    "id":     "1000",
+    "data": [
+        {
+            "id": "1234"
+        }
+    ]
+}
+EOF
 $result_json = $cloudatcost->listservers();
 ok(defined($result_json));
 
