@@ -42,6 +42,7 @@ is($cloudatcost->error_description(),"invalid ip address connection");
 is($cloudatcost->time(),2);
 is($cloudatcost->id(),undef);
 
+# TODO - add real sample response data here (more than id=1234)
 $fakeua->{_decoded_content} = <<EOF;
 {
     "status": "ok",
@@ -114,6 +115,26 @@ $expect_result_json = {
         cpu_total => "5678",
     }
 };
+is_deeply($result_json,$expect_result_json);
+
+$fakeua->{_decoded_content} = <<EOF;
+{
+    "status": "ok",
+    "time":   1,
+    "id":     "1005",
+    "data": [
+        {
+            "ce_id": "3",
+            "name": "Debian-8-64bit"
+        }
+    ]
+}
+EOF
+$expect_result_json = [ {
+        ce_id => "3",
+        name  => "Debian-8-64bit",
+    } ];
+$result_json = $cloudatcost->listtemplates();
 is_deeply($result_json,$expect_result_json);
 
 
