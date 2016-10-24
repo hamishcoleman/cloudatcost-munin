@@ -20,7 +20,7 @@ sub save_result {
     return $self;
 }
 
-sub prev_full_result { return shift->{_prev} || 0; }
+sub prev_full_result { return shift->{_prev} || undef; }
 sub error { return shift->{_prev}{error} || 0; }
 sub error_description { return shift->{_prev}{error_description}; }
 sub id { return shift->{_prev}{id}; }

@@ -28,6 +28,8 @@ isa_ok($cloudatcost->set_credentials('loginval','keyval'),$classname);
 
 my $urlprefix = 'https://example.com/';
 
+is($cloudatcost->prev_full_result(),undef);
+
 $request->set_urlprefix($urlprefix);
 
 $fakeua->{_content_type} = 'text/html';
@@ -62,6 +64,15 @@ my $expect_result_json = [ {
         id => "1234",
     } ];
 is_deeply($result_json,$expect_result_json);
+my $expect_full_result = {
+    status => 'ok',
+    time => 1,
+    id => 1000,
+    data => [{
+        id => 1234,
+    }],
+};
+is_deeply($cloudatcost->prev_full_result(),$expect_full_result);
 
 is($cloudatcost->error(),0);
 is($cloudatcost->error_description(),undef);
