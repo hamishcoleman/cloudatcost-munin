@@ -91,12 +91,13 @@ sub main() {
     }
 
     print("\n");
-    for my $server (@{$servers}) {
+    $servers->foreach( sub {
+
         printf("%s : cpu=%i / %i, ram=%2.2f / %iMB, storage=%2.2f / %iGB\n",
-            $server->{hostname},
-            $server->{cpuusage}, $server->{cpu},
-            $server->{ramusage}*1000/1024, $server->{ram},
-            $server->{hdusage}, $server->{storage},
+            $_->field('hostname'),
+            $_->field('cpuusage'), $_->field('cpu'),
+            $_->field('ramusage')*1000/1024, $_->field('ram'),
+            $_->field('hdusage'), $_->field('storage'),
         );
 
         # I saw the ramusage for one server be 524.29 out of 512, which is
@@ -106,7 +107,7 @@ sub main() {
         # The cpuusage doesnt seem to be a percentage, but that is the only
         # thing that makes sense.  I need to do some more tests, but the
         # panel showed 3% cpu for a cpuusage value of 20 ?!?
-    }
+    });
 }
 main();
 

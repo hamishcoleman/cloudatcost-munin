@@ -5,6 +5,8 @@ use strict;
 # Interface with the Cloudatcost REST API
 #
 
+use HC::HackDB;
+
 sub new {
     my $class = shift;
     my $self = {};
@@ -131,18 +133,32 @@ sub query {
     return 1; # success
 }
 
-#https://panel.cloudatcost.com/api/v1/listservers.php?key=$x&login=$y
+sub query2hackdb {
+    my $self = shift;
+    my $urltail = shift;
+    my $result = $self->query($urltail);
+    return undef if (!$result);
+
+    my $db = HC::HackDB->new();
+    for my $result_row (@{$result}) {
+        my $row = $db->empty_row();
+
+        $row->set_from_hash($result_row);
+        $db->add_row($row);
+    }
+    return $db;
+}
 
 sub listservers {
     my $self = shift;
-    return $self->query('api/v1/listservers.php');
-    # TODO - turn each result an object
+    return $self->query2hackdb('api/v1/listservers.php');
+    # TODO - turn each result into a proper object
 }
 
 sub listtemplates {
     my $self = shift;
-    return $self->query('api/v1/listtemplates.php');
-    # TODO - turn each result an object
+    return $self->query2hackdb('api/v1/listtemplates.php');
+    # TODO - turn each result into a proper object
 }
 
 sub listtasks {
@@ -151,8 +167,8 @@ sub listtasks {
     # returns the string "Unknown column 'iod.apitask.cid' in 'field list'"
     # which is clearly not json, nor is it useful
     my $self = shift;
-    return $self->query('api/v1/listtasks.php');
-    # TODO - turn each result an object
+    return $self->query2hackdb('api/v1/listtasks.php');
+    # TODO - turn each result into a proper object
 }
 
 sub powerop {

@@ -19,6 +19,7 @@ use HC::Common;
 
 use HC::CredentialStore;
 use HC::Cache::Dir;
+use HC::HackDB;
 use REST::JSONRequest;
 use CloudAtCost;
 
@@ -45,41 +46,6 @@ sub calculate_cachedir {
     return $ENV{'HOME'}.'/.cache/cloudatcost';
 }
 
-sub render_table {
-    my $columns = shift;
-    my $table = shift;
-    my $grid;
-
-    push @{$grid}, $columns;
-    for my $row (@{$table}) {
-        my $tmp;
-        for my $column (@{$columns}) {
-            push @{$tmp}, $row->{$column} ||'';
-        }
-        push @{$grid},$tmp;
-    }
-
-    my @col_widths;
-    for my $row (@{$grid}) {
-        for my $col (0..scalar(@{$columns})-1) {
-            my $this_len = length($row->[$col]) ||0;
-            my $col_width = $col_widths[$col]||0;
-            if ($this_len > $col_width) {
-                $col_widths[$col] = length($row->[$col])
-            }
-        }
-    }
-
-    my @s;
-    for my $row (@{$grid}) {
-        for my $col (0..scalar(@{$columns})-1) {
-            push @s, sprintf("%*s ",$col_widths[$col],$row->[$col]);
-        }
-        push @s, "\n";
-    }
-    return join('',@s);
-}
-
 sub render_error {
     my $service = shift;
     my $s;
@@ -100,10 +66,10 @@ sub simple_query {
     my $s = '';
 
     if ($option->{verbose}) {
-        $s .= "\n".Dumper($result)."\n";
+        $s .= "\n".Dumper($service->prev_full_result())."\n";
     }
 
-    $s .= render_table(\@_, $result);
+    $s .= $result->extract(@_)->to_string_pretty();
 
     return $s;
 }
@@ -213,22 +179,22 @@ sub cmd_resources {
         $s .= "\n".Dumper($resources)."\n";
     }
 
-    my $table;
-    $table->[0] = {
+    my $table = HC::HackDB->new();
+    $table->set_column_names(qw(type cpu ram storage));
+    $table->add_row($table->empty_row()->set_from_hash({
         type    => 'used',
         cpu     => $resources->{used}{cpu_used},
         ram     => $resources->{used}{ram_used},
         storage => $resources->{used}{storage_used},
-    };
-    $table->[1] = {
+    }));
+    $table->add_row($table->empty_row()->set_from_hash({
         type    => 'total',
         cpu     => $resources->{total}{cpu_total},
         ram     => $resources->{total}{ram_total},
         storage => $resources->{total}{storage_total},
-    };
+    }));
 
-    my @columns = qw(type cpu ram storage);
-    $s .= render_table(\@columns, $table);
+    $s .= $table->to_string_pretty();
 
     return $s;
 }
