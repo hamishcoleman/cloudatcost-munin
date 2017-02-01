@@ -31,7 +31,7 @@ sub new {
             SSL_cipher_list => 'EECDH+ECDSA+AESGCM:EECDH+aRSA+AESGCM:EECDH+ECDSA+SHA384:EECDH+ECDSA+SHA256:EECDH+aRSA+SHA384:EECDH+aRSA+SHA256:EECDH:EDH+aRSA:!aNULL:!eNULL:!LOW:!3DES:!MD5:!EXP:!PSK:!SRP:!DSS:!RC4',
         );
     } else {
-        warn("Could not set LWP ssl_opts()");
+        warn("WARNING: Could not set ssl_opts()");
     }
 
     return $self;
