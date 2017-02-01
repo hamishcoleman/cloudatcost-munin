@@ -24,10 +24,15 @@ sub new {
 
     $self->{_ua} = $ua;
     $self->{_ua}->default_header( 'Accept' => 'application/json' );
-    $self->{_ua}->ssl_opts(
-        SSL_version => '!SSLv2:!SSLv3',
-        SSL_cipher_list => 'EECDH+ECDSA+AESGCM:EECDH+aRSA+AESGCM:EECDH+ECDSA+SHA384:EECDH+ECDSA+SHA256:EECDH+aRSA+SHA384:EECDH+aRSA+SHA256:EECDH:EDH+aRSA:!aNULL:!eNULL:!LOW:!3DES:!MD5:!EXP:!PSK:!SRP:!DSS:!RC4',
-    );
+
+    if ($self->{_ua}->can('ssl_opts')) {
+        $self->{_ua}->ssl_opts(
+            SSL_version => '!SSLv2:!SSLv3',
+            SSL_cipher_list => 'EECDH+ECDSA+AESGCM:EECDH+aRSA+AESGCM:EECDH+ECDSA+SHA384:EECDH+ECDSA+SHA256:EECDH+aRSA+SHA384:EECDH+aRSA+SHA256:EECDH:EDH+aRSA:!aNULL:!eNULL:!LOW:!3DES:!MD5:!EXP:!PSK:!SRP:!DSS:!RC4',
+        );
+    } else {
+        warn("Could not set LWP ssl_opts()");
+    }
 
     return $self;
 }
