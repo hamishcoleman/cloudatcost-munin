@@ -122,13 +122,19 @@ sub get {
     my ($self,$urlsuffix) = @_;
 
     if ($self->debug()) {
-        print STDERR "> GET ".$self->urlprefix().$urlsuffix."\n";
+        print STDERR "> GET ", $self->urlprefix(), $urlsuffix, "\n";
     }
+
     return undef if (!defined($self->_check_urlprefix()));
 
     # FIXME - urlsuffix must not start with '/'
 
     my $res = $self->{_ua}->get($self->urlprefix().$urlsuffix);
+
+    if ($self->debug()) {
+        print STDERR "< ", $res->status_line(), "\n";
+    }
+
     return $self->_return_json($res);
 }
 
