@@ -33,6 +33,7 @@ my @option_list = (
     "credfile=s",
     "verbose|v+",
     "cachedir=s",
+    "debug!",
 );
 
 # FIXME - should this logic move into the cache package?
@@ -273,6 +274,9 @@ sub main() {
 
     my $client = REST::JSONRequest->new();
     $client->set_urlprefix('https://panel.cloudatcost.com/');
+    if ($option->{debug}) {
+        $client->debug(1);
+    }
 
     my $cache = HC::Cache::Dir->new();
     $cache->set_cachedir(calculate_cachedir());

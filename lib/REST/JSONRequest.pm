@@ -37,6 +37,14 @@ sub new {
     return $self;
 }
 
+sub debug {
+    my ($self,$debug) = @_;
+    if (defined($debug)) {
+        $self->{_debug} = $debug;
+    }
+    return $self->{_debug};
+}
+
 sub set_urlprefix {
     my ($self,$urlprefix) = @_;
 
@@ -113,6 +121,9 @@ sub _return_json {
 sub get {
     my ($self,$urlsuffix) = @_;
 
+    if ($self->debug()) {
+        print STDERR "> GET ".$self->urlprefix().$urlsuffix."\n";
+    }
     return undef if (!defined($self->_check_urlprefix()));
 
     # FIXME - urlsuffix must not start with '/'
