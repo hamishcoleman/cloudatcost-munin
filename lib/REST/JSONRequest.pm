@@ -144,6 +144,12 @@ sub post_rawcontent {
     my $content_type = shift;
     my $rawcontent = shift;
 
+    if ($self->debug()) {
+        print STDERR "> POST ", $self->urlprefix(), $urlsuffix, "\n";
+        print STDERR "> Content-type: ",$content_type, "\n";
+        print STDERR "> ", $rawcontent, "\n";
+    }
+
     return undef if (!defined($self->_check_urlprefix()));
 
     my $res = $self->{_ua}->post(
@@ -151,6 +157,11 @@ sub post_rawcontent {
         'Content-type' => $content_type,
         'Content' => $rawcontent,
     );
+
+    if ($self->debug()) {
+        print STDERR "< ", $res->status_line(), "\n";
+    }
+
     return $self->_return_json($res);
 }
 
