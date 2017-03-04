@@ -105,10 +105,13 @@ sub query {
             }
         }
     } elsif ($method eq 'post') {
-        # FIXME - invalidate the caches on a post
         $res = $self->Request()->post_rawcontent(
             $urltail,'application/x-www-form-urlencoded',$url_fields
         );
+        if ($cache) {
+            # purged related cached data when we make a state change
+            $cache->del_all();
+        }
     } else {
         die("Unknown HTTP method");
     }
