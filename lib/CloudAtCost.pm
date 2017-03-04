@@ -78,41 +78,39 @@ sub query {
 
     my $cache = $self->Cache();
 
-    my $res;
-    if ($cache && !$nocache) {
-        $res = $cache->get($cache_key);
+    # FIXME
+    # - we really should not be manually marshalling parameters - I should
+    #   just use an existing library here
+
+    my $url_fields;
+    if (scalar(keys(%fields))) {
+        my @param;
+
+        foreach (keys(%fields)) {
+            push @param, join('=',$_,$fields{$_});
+        }
+        $url_fields = join('&',@param);
     }
 
-    if (!defined($res)) {
-        # either no cache, or the cache get failed
-
-        # FIXME
-        # - we really should not be manually marshalling parameters - I should
-        #   just use an existing library here
-
-        my $url_fields;
-        if (scalar(keys(%fields))) {
-            my @param;
-
-            foreach (keys(%fields)) {
-                push @param, join('=',$_,$fields{$_});
-            }
-            $url_fields = join('&',@param);
+    my $res;
+    if ($method eq 'get') {
+        if ($cache && !$nocache) {
+            $res = $cache->get($cache_key);
         }
-
-        if ($method eq 'get') {
+        if (!defined($res)) {
+            # either no cache, or the cache get failed
             $res = $self->Request()->get($urltail.'?'.$url_fields);
-        } elsif ($method eq 'post') {
-            $res = $self->Request()->post_rawcontent(
-                $urltail,'application/x-www-form-urlencoded',$url_fields
-            );
-        } else {
-            die("Unknown HTTP method");
+            if ($res && $cache) {
+                $cache->put($cache_key,$res);
+            }
         }
-
-        if ($res && $cache) {
-            $cache->put($cache_key,$res);
-        }
+    } elsif ($method eq 'post') {
+        # FIXME - invalidate the caches on a post
+        $res = $self->Request()->post_rawcontent(
+            $urltail,'application/x-www-form-urlencoded',$url_fields
+        );
+    } else {
+        die("Unknown HTTP method");
     }
 
     if (!defined($res)) {
