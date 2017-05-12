@@ -92,7 +92,7 @@ sub simple_action {
 sub cmd_listservers {
     my $service = shift;
     return simple_query($service,'listservers',
-        qw(sid hostname ip cpu ram storage mode status)
+        qw(sid label ip cpu ram storage mode status)
     );
 }
 
