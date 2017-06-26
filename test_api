@@ -55,7 +55,9 @@ sub render_error {
         $s .= "\n".Dumper($service)."\n";
     }
 
-    $s .= "error: ".$service->error()." ".$service->error_description."\n";
+    my $error = $service->error() || "(error is null)";
+    my $description = $service->error_description || "(description is null)";
+    $s .= "error: ".$error." ".$description."\n";
     return $s;
 }
 
