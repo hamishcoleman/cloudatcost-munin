@@ -33,6 +33,7 @@ my @option_list = (
     "credfile=s",
     "verbose|v+",
     "cachedir=s",
+    "cacheflush!",
     "debug!",
 );
 
@@ -287,6 +288,10 @@ sub main() {
     $cloudatcost->set_Request($client);
     $cloudatcost->set_Cache($cache);
     $cloudatcost->set_credentials($username,$key);
+
+    if (defined($option->{cacheflush})) {
+        $cache->del_all();
+    }
 
     my $cmd = shift(@ARGV);
     if (!defined($cmd) || !defined($cmds->{$cmd})) {
