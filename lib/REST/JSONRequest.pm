@@ -103,6 +103,8 @@ sub _return_json {
 
     if ($res->content_type ne $self->{_mimetype}) {
         warn "unexpected content_type (".$res->content_type." != ".$self->{_mimetype}.")";
+        # stash the error result so it can be examined
+        $self->{_prev} = $res;
         return undef;
     }
 
@@ -214,10 +216,13 @@ sub error_content {
     return undef if (!defined($self->{_prev}));
 
     my $json;
-    # just return an undef if we cannot decode the content
+    # if we cannot decode the content, try to at least return something..
     eval {
         $json = decode_json($self->{_prev}->decoded_content);
     };
+    if (!defined($json)) {
+        return substr($self->{_prev}->decoded_content(),0,80);
+    }
 
     return $json;
 }

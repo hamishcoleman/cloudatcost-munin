@@ -56,9 +56,17 @@ sub render_error {
         $s .= "\n".Dumper($service)."\n";
     }
 
-    my $error = $service->error() || "(error is null)";
-    my $description = $service->error_description || "(description is null)";
-    $s .= "error: ".$error." ".$description."\n";
+    my $error = $service->error();
+    my $description = $service->error_description;
+
+    if (defined($error) && defined($description)) {
+        $s .= "error: ".$error." ".$description."\n";
+        return $s;
+    }
+
+    # something truely broken has happened
+    # FIXME - move more of this logic into objects?
+    $s .= "error: bad: " . $service->Request()->error_content();
     return $s;
 }
 
