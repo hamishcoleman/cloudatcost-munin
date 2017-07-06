@@ -122,6 +122,14 @@ sub query {
     }
     return undef if (!defined($res));
 
+    if (!ref($res)) {
+        # this looks like an error message
+        my $fake_res = {};
+        $fake_res->{error} = $res;
+        $self->save_result($fake_res);
+        return undef;
+    }
+
     $self->save_result($res);
 
     if ($res->{status} eq 'error') {
