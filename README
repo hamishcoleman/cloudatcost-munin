@@ -1,11 +1,16 @@
+The start of a set of perl bindings for the cloudatcost API.
 
-A munin plugin to monitor cloudatcost accounts using the API.
-
-- resources available/consumed
-- VM utilisation
+NOTE: These APIs have been "disabled" since June 2017.  At the time they said
+that they were shortly to replease a new API.  Since this never occured, this
+library is now mostly useless.
 
 API Documentation:
     https://panel.cloudatcost.com/api-details.php
 
-NOTE: generating the API key didnt work for meon firefox, but does on chromium.
+NOTE: generating the API key didnt work for me on firefox, but does on chromium.
+
+Was intended to provide a munin monitor with:
+
+- resources available/consumed
+- VM utilisation
 
