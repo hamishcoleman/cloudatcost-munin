@@ -132,6 +132,11 @@ sub query {
 
     $self->save_result($res);
 
+    if (ref($res) eq 'SCALAR') {
+        # this looks like an error message
+        return undef;
+    }
+
     if ($res->{status} eq 'error') {
         return undef;
     }
