@@ -211,4 +211,27 @@ sub _scrape_index {
 
     return $db;
 }
+
+sub _scrape_templates {
+    my $self = shift;
+    my $cnm = shift; # CustID from _scape_index above
+
+    my $tail = 'panel/_config/cloudpro-add-server.php?CNM=' . $cnm;
+    my $tree = $self->_get_maybe_login_2tree($tail);
+
+    my $db = {};
+
+    my $select = $tree->look_down(
+        '_tag', 'select',
+        'name', 'os',
+    );
+    for my $option ($select->look_down('_tag', 'option')) {
+        my $this = {};
+        $this->{id} = $option->attr('value');
+        $this->{detail} = $option->as_trimmed_text();
+        push @{$db->{data}}, $this;
+    }
+    return $db;
+}
+
 1;

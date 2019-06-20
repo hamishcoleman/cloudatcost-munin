@@ -41,6 +41,11 @@ sub cmd_listservers {
     return $cac->_scrape_index();
 }
 
+sub cmd_listtemplates {
+    my $cac = shift;
+    return $cac->_scrape_templates(@_);
+}
+
 my $cmds = {
     'buildstatus'   => {
         cmd  => \&cmd_buildstatus,
@@ -49,6 +54,10 @@ my $cmds = {
     'listservers'   => {
         cmd  => \&cmd_listservers,
         help => 'Scape the server details',
+    },
+    'listtemplates'   => {
+        cmd  => \&cmd_listtemplates,
+        help => 'Scape the vm template details',
     },
 };
 
