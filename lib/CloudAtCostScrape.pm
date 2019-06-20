@@ -106,6 +106,15 @@ sub _scrape_index {
 
     my $db = {};
 
+    # Look for the customer ID
+    my $tmp1 = $tree->look_down(
+        '_tag', 'a',
+        'onclick', qr/^cloudpro/,
+    )->attr('onclick');
+    if ($tmp1 =~ m/^cloudpro\((\d+)\)/) {
+        $db->{CustID} = $1;
+    }
+
     for my $panel ($tree->look_down(
                     '_tag', 'div',
                     'class', 'panel panel-default'
