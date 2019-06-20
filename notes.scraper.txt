@@ -1,0 +1,81 @@
+Since there is no sign of the API ever coming back, it might make sense to
+build a reverse-engineered screen scraper.
+
+This file contains some notes on the website flow.
+
+Most of the front end is driven via javascript functions
+    https://panel.cloudatcost.com/panel/js/siteFunctions.js
+contains a lot of useful details
+
+URLS:
+
+Cookie: PHPSESSID=$cookie
+
+https://panel.cloudatcost.com/index.php
+https://panel.cloudatcost.com/panel/_config/pop/ping.php?sid=$sid
+https://panel.cloudatcost.com/panel/_config/pop/ipv4.php?SID=$sid
+https://panel.cloudatcost.com/panel/_config/pop/cloudpro.php?CNM=$cnm
+https://panel.cloudatcost.com/panel/_config/cloudpro-add-server.php?CNM=$cnm&FREECPU=1&FREERAM=512&FREESTORAGE=10
+
+https://panel.cloudatcost.com/build-cloud-pro.php
+    POST data
+        datacenter=3
+        cpu=1
+        ram=512
+        storage=10
+        os=3
+        cid=$cid
+        freecpu=1
+        freeram=512
+        freestorage=10
+        btkn=$btkn
+
+https://panel.cloudatcost.com/script-check-build-percent.php?s=$servername&_=$dunno
+https://panel.cloudatcost.com/panel/_config/pop/ipv4.php?add=yes&SID=$sid
+https://panel.cloudatcost.com/panel/_config/serverdeletecloudpro.php?cid=$cid&sid=$sid&svn=$svn
+
+Strings from index.php
+
+index.php data from the 'i' button:
+
+    each host:
+
+        Current OS:
+        IPv4:
+        Hostname:
+
+        "i" button:
+            Server ID:
+            Installed:
+            IP Address:
+            Netmask:
+            Gateway:
+            Password:
+            Run Mode:
+
+        power
+            PowerCycle(2, "$internalname", "$sid", "$hostname")
+            PowerCycle(1, "$internalname", "$sid", "$hostname")
+            PowerCycle(0, "$internalname", "$sid", "$hostname")
+        modify
+            EDSN($sid, "$hostname")
+            IPV4($sid, "$hostname")
+            NET1($sid, "$hostname")
+            EDSRM($sid, "$hostname")
+            DELETECPRO($sid, "$hostname", "$cid", "$svn")
+        console
+            newPopup("console5/open-console.php?sid=$sid&vmname=$internalname");"
+        notes
+            addNote("$hostname", $sid);
+
+
+login:
+
+    https://panel.cloudatcost.com/ redirect to
+    https://panel.cloudatcost.com/login.php
+        form id="login-form" post action="manage-check2.php"
+            input name=username
+            input name=password
+    https://panel.cloudatcost.com/manage-check2.php set PSPSESSID, redirect to
+    https://panel.cloudatcost.com/index.php
+
