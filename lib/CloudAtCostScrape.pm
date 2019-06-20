@@ -9,6 +9,7 @@ use strict;
 
 use WWW::Mechanize;
 use HTTP::Cookies;
+use HTML::TreeBuilder;
 
 sub new {
     my $class = shift;
@@ -90,5 +91,88 @@ sub _siteFunctions_buildStatus {
     # <tr><td align=\'center\' colspan=\'4\'>Your server is getting ready to get deployed. Usually this takes a minute or 2 but can be slightly longer if there is a backlog..<br><br> </td></tr></tbody></table></div>
 
     return $res;
+}
+
+sub _scrape_index {
+    my $self = shift;
+
+    $self->_get_maybe_login('index.php');
+
+    my $tree = HTML::TreeBuilder->new;
+    $tree->store_comments(1);
+    $tree->parse($self->Mech()->content());
+    $tree->eof;
+    $tree->elementify;
+
+    my $db = {};
+
+    for my $panel ($tree->look_down(
+                    '_tag', 'div',
+                    'class', 'panel panel-default'
+                  )) {
+        my $title = $panel->look_down(
+            '_tag', 'td',
+            'id', qr/^PanelTitle_/,
+        );
+        next if (!defined($title));
+
+        my $sid = $title->attr('id');
+        $sid =~ s/^PanelTitle_//;
+
+        my $hostname = $title->as_trimmed_text();
+        $hostname =~ s/^\x{a0}*//;
+
+        my $this = {};
+        $this->{hostname} = $hostname;
+        $this->{state} = $title->look_down('_tag','font')->attr('color');
+
+        my $infotext = $panel->look_down(
+            '_tag','button',
+            'id','Info_'.$sid,
+        )->attr('data-content');
+
+        # Yes, they have HTML as an attrib to one of the elements on the page
+        my $info = HTML::TreeBuilder->new;
+        $info->parse($infotext);
+        $info->eof;
+        $info->elementify;
+
+        my $infomap = {
+            'Gateway:' => 'ipv4_gateway',
+            'IP Address:' => 'ipv4_address',
+            'Installed:' => 'installdate',
+            'Netmask:' => 'ipv4_netmask',
+            'Password:' => 'password',
+            'Run Mode:' => 'runmode',
+            'Server ID:' => 'sid',
+        };
+        for my $tr ($info->look_down('_tag','tr')) {
+            my $key = $tr->address('.0')->as_trimmed_text();
+            $key = $infomap->{$key} || die('unknown info key');
+
+            my $val = $tr->address('.1')->as_trimmed_text();
+            $val =~ s/^\x{a0}*//;
+
+            $this->{$key} = $val;
+        }
+
+        # go looking for the internal name
+        my $tmp1 = $panel->look_down(
+            '_tag', 'a',
+            'onclick', qr/^PowerCycle/,
+        )->attr('onclick');
+        if ($tmp1 =~ m/^PowerCycle.\d+,\s+"([^"]+)"/) {
+            $this->{internal_name} = $1;
+        }
+
+        # TODO
+        # - Current OS
+        # - IPv6 if enabled
+        # - CPU/RAM/SSD provisioned and percentage
+
+        $db->{servers}{$sid} = $this;
+    }
+
+    return $db;
 }
 1;

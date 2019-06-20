@@ -35,10 +35,20 @@ sub cmd_buildstatus {
     return $cac->_siteFunctions_buildStatus();
 }
 
+sub cmd_listservers {
+    my $cac = shift;
+
+    return $cac->_scrape_index();
+}
+
 my $cmds = {
     'buildstatus'   => {
         cmd  => \&cmd_buildstatus,
         help => 'Return the current build status',
+    },
+    'listservers'   => {
+        cmd  => \&cmd_listservers,
+        help => 'Scape the server details',
     },
 };
 
