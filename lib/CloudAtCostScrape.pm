@@ -82,6 +82,21 @@ sub _get_maybe_login {
     return $res;
 }
 
+sub _get_maybe_login_2tree {
+    my $self = shift;
+    my $tail = shift;
+
+    $self->_get_maybe_login($tail);
+
+    my $tree = HTML::TreeBuilder->new;
+    $tree->store_comments(1);
+    $tree->parse($self->Mech()->content());
+    $tree->eof;
+    $tree->elementify;
+
+    return $tree;
+}
+
 sub _siteFunctions_buildStatus {
     my $self = shift;
 
@@ -96,13 +111,7 @@ sub _siteFunctions_buildStatus {
 sub _scrape_index {
     my $self = shift;
 
-    $self->_get_maybe_login('index.php');
-
-    my $tree = HTML::TreeBuilder->new;
-    $tree->store_comments(1);
-    $tree->parse($self->Mech()->content());
-    $tree->eof;
-    $tree->elementify;
+    my $tree = $self->_get_maybe_login_2tree('index.php');
 
     my $db = {};
 
