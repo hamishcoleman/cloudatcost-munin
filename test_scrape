@@ -29,9 +29,27 @@ my @option_list = (
     "debug!",
 );
 
+sub cmd_buildstatus {
+    my $cac = shift;
+
+    return $cac->_siteFunctions_buildStatus();
+}
+
+my $cmds = {
+    'buildstatus'   => {
+        cmd  => \&cmd_buildstatus,
+        help => 'Return the current build status',
+    },
+};
+
+
 sub main() { 
     HC::Common::do_options($option,@option_list);
     if (defined($option->{help})) {
+        print("Sub commands:\n\n");
+        for my $cmd (sort(keys(%{$cmds}))) {
+            printf("%-18s %s\n",$cmd,$cmds->{$cmd}{help});
+        }
         return;
     }
 
@@ -55,10 +73,15 @@ sub main() {
 
     $cac->set_credentials($username,$password);
 
-    my $res = $cac->_get_maybe_login('index.php');
+    my $cmd = shift(@ARGV);
+    if (!defined($cmd) || !defined($cmds->{$cmd})) {
+        die('No such sub-command');
+    }
+
+    my $result = $cmds->{$cmd}{'cmd'}($cac,@ARGV);;
 
     print("\n\n");
-    print(Dumper($res));
+    print(Dumper($result));
 
 }
 main();

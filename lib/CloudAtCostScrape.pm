@@ -81,4 +81,14 @@ sub _get_maybe_login {
     return $res;
 }
 
+sub _siteFunctions_buildStatus {
+    my $self = shift;
+
+    my $res = $self->_get_maybe_login('panel/_config/pop/buildstatus.php');
+    # return if not defined
+
+    # <tr><td align=\'center\' colspan=\'4\'>Your server is getting ready to get deployed. Usually this takes a minute or 2 but can be slightly longer if there is a backlog..<br><br> </td></tr></tbody></table></div>
+
+    return $res;
+}
 1;
