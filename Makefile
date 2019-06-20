@@ -8,8 +8,12 @@ tarfile := $(NAME)-$(describe).tar.gz
 
 all:    test
 
+PACKAGES_SCRAPER := \
+    libwww-mechanize-perl
+
 build_dep:
-	aptitude install libdevel-cover-perl
+	aptitude install libdevel-cover-perl $(PACKAGES_SCRAPER)
+
 
 # FIXME, TODO: my standard libs should be managed with a submodule
 
