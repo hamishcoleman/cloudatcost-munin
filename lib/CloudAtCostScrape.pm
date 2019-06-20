@@ -122,6 +122,8 @@ sub _scrape_index {
     )->attr('onclick');
     if ($tmp1 =~ m/^cloudpro\((\d+)\)/) {
         $db->{CustID} = $1;
+    } else {
+        die("Could not find expected tag");
     }
 
     for my $panel ($tree->look_down(
@@ -144,11 +146,17 @@ sub _scrape_index {
         $this->{CustID} = $db->{CustID};
         $this->{servername} = $hostname;
         $this->{_status} = $title->look_down('_tag','font')->attr('color');
+        if (!defined($this->{_status})) {
+            die("Could not find expected tag");
+        }
 
         my $infotext = $panel->look_down(
             '_tag','button',
             'id','Info_'.$sid,
         )->attr('data-content');
+        if (!defined($infotext)) {
+            die("Could not find expected tag");
+        }
 
         # Yes, they have HTML as an attrib to one of the elements on the page
         my $info = HTML::TreeBuilder->new;
@@ -182,6 +190,8 @@ sub _scrape_index {
         )->attr('onclick');
         if ($tmp1 =~ m/^PowerCycle.\d+,\s+"([^"]+)"/) {
             $this->{vmname} = $1;
+        } else {
+            die("Could not find expected tag");
         }
 
         # TODO from the html
@@ -225,6 +235,9 @@ sub _scrape_templates {
         '_tag', 'select',
         'name', 'os',
     );
+    if (!defined($select)) {
+        die("Could not find expected tag");
+    }
     for my $option ($select->look_down('_tag', 'option')) {
         my $this = {};
         $this->{id} = $option->attr('value');
