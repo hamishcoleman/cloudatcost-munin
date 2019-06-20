@@ -132,8 +132,9 @@ sub _scrape_index {
         $hostname =~ s/^\x{a0}*//;
 
         my $this = {};
-        $this->{hostname} = $hostname;
-        $this->{state} = $title->look_down('_tag','font')->attr('color');
+        $this->{CustID} = $db->{CustID};
+        $this->{servername} = $hostname;
+        $this->{_status} = $title->look_down('_tag','font')->attr('color');
 
         my $infotext = $panel->look_down(
             '_tag','button',
@@ -149,11 +150,11 @@ sub _scrape_index {
         my $infomap = {
             'Gateway:' => 'ipv4_gateway',
             'IP Address:' => 'ipv4_address',
-            'Installed:' => 'installdate',
+            'Installed:' => 'sdate',
             'Netmask:' => 'ipv4_netmask',
-            'Password:' => 'password',
-            'Run Mode:' => 'runmode',
-            'Server ID:' => 'sid',
+            'Password:' => 'rootpass',
+            'Run Mode:' => 'mode',
+            'Server ID:' => 'id',
         };
         for my $tr ($info->look_down('_tag','tr')) {
             my $key = $tr->address('.0')->as_trimmed_text();
@@ -171,13 +172,30 @@ sub _scrape_index {
             'onclick', qr/^PowerCycle/,
         )->attr('onclick');
         if ($tmp1 =~ m/^PowerCycle.\d+,\s+"([^"]+)"/) {
-            $this->{internal_name} = $1;
+            $this->{vmname} = $1;
         }
 
-        # TODO
+        # TODO from the html
         # - Current OS
         # - IPv6 if enabled
         # - CPU/RAM/SSD provisioned and percentage
+        # - hostname
+        # - type "CloudPRO v1"
+
+        # TODO matching fields from old REST API
+        # - packageid
+        # - label
+        # - ip, netmask, gateway (I have used "better" names above)
+        # - hostname
+        # - vncport, vnjcpass
+        # - servertype
+        # - template
+        # - cpu, cpuusage, ram, ramusage, storage, hdusage
+        # - status
+        # - panel_note
+        # - uid
+        # - sid
+        # - rdns, rdnsdefault
 
         $db->{servers}{$sid} = $this;
     }
