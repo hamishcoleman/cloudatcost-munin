@@ -1,0 +1,65 @@
+#!/usr/bin/env perl
+use warnings;
+use strict;
+
+# allow the libs to be in the bin dir
+use FindBin;
+use lib "$FindBin::RealBin/lib";
+use lib "/home/hamish/s/bin/lib";
+
+use Data::Dumper;
+$Data::Dumper::Indent = 1;
+$Data::Dumper::Sortkeys = 1;
+$Data::Dumper::Quotekeys = 0;
+
+use HC::Common;
+
+use HC::CredentialStore;
+
+use CloudAtCostScrape;
+
+my $option = {
+    preset   => 'cac',
+    verbose  => 0,
+};
+my @option_list = (
+    "preset|s=s",
+    "credfile=s",
+    "verbose|v+",
+    "debug!",
+);
+
+sub main() { 
+    HC::Common::do_options($option,@option_list);
+    if (defined($option->{help})) {
+        return;
+    }
+
+    my ($username,$password);
+    if (defined($option->{credfile})) {
+        my $cred = HC::CredentialStore->new($option->{credfile});
+        die("credfile error") if (!defined($cred));
+
+        ($username,$password) = $cred->lookup($option->{preset});
+    }
+
+    die "Need username credentials" if (!defined($username));
+    die "Need password credentials" if (!defined($password));
+
+    my $cac = CloudAtCostScrape->new();
+    if ($option->{debug}) {
+        # TODO: perhaps create a debug method on the CloudAtCostScrape object
+        $cac->Mech()->add_handler("request_send", sub { shift->dump; return });
+        $cac->Mech()->add_handler("request_done", sub { shift->dump; return });
+    }
+
+    $cac->set_credentials($username,$password);
+
+    my $res = $cac->_get_maybe_login('index.php');
+
+    print("\n\n");
+    print(Dumper($res));
+
+}
+main();
+
