@@ -59,6 +59,13 @@ sub _get_maybe_login {
     my $mech = $self->Mech();
     my $res = $mech->get($self->_urltail($tail));
 
+    # TODO:
+    # - if we are not logged in, the redirect can sometimes go awry:
+    #   https://panel.cloudatcost.com/panel/_config/pop/buildstatus.php ->
+    #   https://panel.cloudatcost.com/panel/_config/pop/login.php
+    #   Ideally, cloudatcost would not be so shit, however, we could try
+    #   to catch this scenario and adjust for it.
+
     if ($mech->uri() =~ m%/login.php$%) {
         # we look like we ended up at the login page
 
