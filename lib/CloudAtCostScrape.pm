@@ -133,10 +133,10 @@ sub _scrape_index {
         '_tag', 'a',
         'onclick', qr/^cloudpro/,
     )->attr('onclick');
-    if ($tmp1 =~ m/^cloudpro\((\d+)\)/) {
+    if ($tmp1 =~ m/^cloudpro\((\d+),\s+'([^']+)'\)/) {
         $db->{CustID} = $1;
     } else {
-        die("Could not find expected tag");
+        die("Could not find expected tag in '$tmp1'");
     }
 
     for my $panel ($tree->look_down(
