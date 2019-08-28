@@ -188,7 +188,8 @@ sub _scrape_index {
         };
         for my $tr ($info->look_down('_tag','tr')) {
             my $key = $tr->address('.0')->as_trimmed_text();
-            $key = $infomap->{$key} || die('unknown info key');
+            next if (!$key);
+            $key = $infomap->{$key} || die("unknown info key '$key'");
 
             my $val = $tr->address('.1')->as_trimmed_text();
             $val =~ s/^\x{a0}*//;
