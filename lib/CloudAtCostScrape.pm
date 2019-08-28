@@ -52,38 +52,45 @@ sub _urltail {
     return $self->{baseurl} . $tail;
 }
 
-# Fetch the a page, watching for the login form and possibly logging in
-sub _get_maybe_login {
+# Attempt to login
+sub _login {
     my $self = shift;
-    my $tail = shift;
     my $mech = $self->Mech();
-    my $res = $mech->get($self->_urltail($tail));
+    my $res = eval { $mech->get($self->_urltail("login.php")) };
 
-    # TODO:
-    # - if we are not logged in, the redirect can sometimes go awry:
-    #   https://panel.cloudatcost.com/panel/_config/pop/buildstatus.php ->
-    #   https://panel.cloudatcost.com/panel/_config/pop/login.php
-    #   Ideally, cloudatcost would not be so shit, however, we could try
-    #   to catch this scenario and adjust for it.
-
-    if ($mech->uri() =~ m%/login.php$%) {
-        # we look like we ended up at the login page
-
-        $res = $mech->submit_form(
-            form_name => 'login-form',
-            fields    => {
-                username => $self->{login},
-                password => $self->{password},
-            },
-            button    => 'submit'
-        );
-
-    }
+    $res = $mech->submit_form(
+        form_name => 'login-form',
+        fields    => {
+            username => $self->{login},
+            password => $self->{password},
+        },
+        button    => 'submit'
+    );
 
     if ($mech->uri() =~ m%/login.php$%) {
         # we /still/ look like we need to login
         die("Could not login");
         # return undef;
+    }
+
+    return 1;
+}
+
+# Fetch the a page, watching for the login form and possibly logging in
+sub _get_maybe_login {
+my $self = shift;
+    my $tail = shift;
+    my $mech = $self->Mech();
+    my $res = eval { $mech->get($self->_urltail($tail)) };
+
+    if ($mech->uri() =~ m%/login.php$%) {
+        # we look like were redirected to the login page
+        $self->_login();
+        $res = $mech->get($self->_urltail($tail));
+    }
+
+    if (!defined($res)) {
+        ...;
     }
 
     return $res;
