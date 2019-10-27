@@ -15,6 +15,7 @@ $Data::Dumper::Quotekeys = 0;
 use HC::Common;
 
 use HC::CredentialStore;
+use HC::HackDB;
 
 use CloudAtCostScrape;
 
@@ -27,7 +28,29 @@ my @option_list = (
     "credfile=s",
     "verbose|v+",
     "debug!",
+    "raw!",
 );
+
+sub data2hackdb {
+    my $data = shift;
+    return undef if (!$data);
+
+    if (ref($data) eq 'HASH') {
+        # assume that hashes are simply unique arrays and the key has no meaning
+        my $newdata = qw();
+        @{$newdata} = values(%{$data});
+        $data = $newdata;
+    }
+
+    my $db = HC::HackDB->new();
+    for my $data_row (@{$data}) {
+        my $row = $db->empty_row();
+
+        $row->set_from_hash($data_row);
+        $db->add_row($row);
+    }
+    return $db;
+}
 
 sub cmd_buildstatus {
     my $cac = shift;
@@ -38,7 +61,20 @@ sub cmd_buildstatus {
 sub cmd_listservers {
     my $cac = shift;
 
-    return $cac->_scrape_index();
+    my $data = $cac->_scrape_index();
+
+    my $s = '';
+    if ($option->{raw}) {
+        $s .= "\n".Dumper($data)."\n";
+    }
+
+    $s .= "CustID: ". $data->{CustID} . "\n";
+
+    my $hackdb = data2hackdb($data->{servers});
+    $s .= $hackdb->extract(qw(id servername ipv4_address _status))->to_string_pretty();
+    # cpu ram storage mode
+
+    return $s;
 }
 
 sub cmd_listtemplates {
