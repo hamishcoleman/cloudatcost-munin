@@ -249,7 +249,7 @@ sub _scrape_templates {
 
     die "Need cnm" if (!defined($cnm));
 
-    my $tail = 'panel/_config/cloudpro-add-server.php?CNM=' . $cnm;
+    my $tail = 'panel/_config/cloudpro-add-v2-server.php?CNM=' . $cnm . '&U=' . $self->{login};
     my $tree = $self->_get_maybe_login_2tree($tail);
 
     my $db = {};

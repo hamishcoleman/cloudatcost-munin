@@ -17,6 +17,15 @@ https://panel.cloudatcost.com/panel/_config/pop/ipv4.php?SID=$sid
 https://panel.cloudatcost.com/panel/_config/pop/cloudpro.php?CNM=$cnm
 https://panel.cloudatcost.com/panel/_config/cloudpro-add-server.php?CNM=$cnm&FREECPU=1&FREERAM=512&FREESTORAGE=10
 
+https://panel.cloudatcost.com/panel/_config/pop/cloudpro.php?CNM=$cnm&uname=$username
+    shows:
+        daily build limit
+        Consumed / available: cpu, ram, ssd
+https://panel.cloudatcost.com/panel/_config/cloudpro-add-v2-server.php?CNM=$cnm&U=$username&DC=4
+    shows:
+        many other things
+        os type
+
 https://panel.cloudatcost.com/build-cloud-pro.php
     POST data
         datacenter=3
