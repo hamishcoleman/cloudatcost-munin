@@ -79,7 +79,7 @@ sub cmd_listservers {
 
 sub cmd_listtemplates {
     my $cac = shift;
-    my $data = $cac->_scrape_templates(@_);
+    my $data = $cac->_scrape_templates();
 
     my $s = '';
     if ($option->{raw}) {

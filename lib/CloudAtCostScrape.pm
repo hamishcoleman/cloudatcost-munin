@@ -80,6 +80,21 @@ sub _login {
     return 1;
 }
 
+# Idempotently ensure we are logged in
+sub login {
+    my $self = shift;
+    if ($self->{loginok}) {
+        return 1;
+    }
+
+    if ($self->_login()) {
+        $self->{loginpok} = 1;
+        return 1;
+    }
+
+    die("Cannot login");
+}
+
 # Fetch the a page, watching for the login form and possibly logging in
 sub _get_maybe_login {
     my $self = shift;
@@ -263,7 +278,11 @@ sub _scrape_index {
 
 sub _scrape_templates {
     my $self = shift;
-    my $cnm = shift; # CustID from _scape_index above
+
+    $self->login()
+
+    # TODO - use a real cache
+    my $cnm = $self->{_cache}{_scrape_index}{CustID};
 
     die "Need cnm" if (!defined($cnm));
 
