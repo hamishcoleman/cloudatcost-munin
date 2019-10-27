@@ -79,7 +79,17 @@ sub cmd_listservers {
 
 sub cmd_listtemplates {
     my $cac = shift;
-    return $cac->_scrape_templates(@_);
+    my $data = $cac->_scrape_templates(@_);
+
+    my $s = '';
+    if ($option->{raw}) {
+        $s .= "\n".Dumper($data)."\n";
+    }
+
+    my $hackdb = data2hackdb($data->{data});
+    $s .= $hackdb->extract(qw(id detail))->to_string_pretty();
+
+    return $s;
 }
 
 my $cmds = {
