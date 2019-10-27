@@ -215,9 +215,12 @@ sub _scrape_index {
         # TODO from the html
         # - Current OS
         # - IPv6 if enabled
+        #   - router and network available from
+        #       - https://panel.cloudatcost.com/panel/_config/pop/ipv6.php?sid=255173351
         # - CPU/RAM/SSD provisioned and percentage
         # - hostname
         # - type "CloudPRO v1"
+        # - type "CloudPRO v3"
 
         # TODO matching fields from old REST API
         # - packageid
