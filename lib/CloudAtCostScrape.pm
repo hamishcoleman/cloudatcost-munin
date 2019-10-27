@@ -73,12 +73,16 @@ sub _login {
         # return undef;
     }
 
+    # Since logging in always gives us an index page, we may as well scrape it
+    my $tree = $self->_last2tree();
+    $self->_scrape_index($tree);
+
     return 1;
 }
 
 # Fetch the a page, watching for the login form and possibly logging in
 sub _get_maybe_login {
-my $self = shift;
+    my $self = shift;
     my $tail = shift;
     my $mech = $self->Mech();
     my $res = eval { $mech->get($self->_urltail($tail)) };
@@ -96,19 +100,23 @@ my $self = shift;
     return $res;
 }
 
-sub _get_maybe_login_2tree {
+sub _last2tree {
     my $self = shift;
-    my $tail = shift;
-
-    $self->_get_maybe_login($tail);
 
     my $tree = HTML::TreeBuilder->new;
     $tree->store_comments(1);
     $tree->parse($self->Mech()->content());
     $tree->eof;
     $tree->elementify;
+}
 
-    return $tree;
+sub _get_maybe_login_2tree {
+    my $self = shift;
+    my $tail = shift;
+
+    $self->_get_maybe_login($tail);
+
+    return $self->_last2tree();
 }
 
 sub _siteFunctions_buildStatus {
@@ -123,8 +131,16 @@ sub _siteFunctions_buildStatus {
 
 sub _scrape_index {
     my $self = shift;
+    my $tree = shift;
 
-    my $tree = $self->_get_maybe_login_2tree('index.php');
+    # TODO - use a real cache!
+    if (defined($self->{_cache}{_scrape_index})) {
+        return $self->{_cache}{_scrape_index};
+    }
+
+    if (!defined($tree)) {
+        $tree = $self->_get_maybe_login_2tree('index.php');
+    }
 
     my $db = {};
 
@@ -240,6 +256,8 @@ sub _scrape_index {
         $db->{servers}{$sid} = $this;
     }
 
+    # TODO - use a real cache!
+    $self->{_cache}{_scrape_index} = $db;
     return $db;
 }
 
