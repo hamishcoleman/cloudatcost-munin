@@ -55,7 +55,7 @@ sub data2hackdb {
 sub cmd_buildstatus {
     my $cac = shift;
 
-    return $cac->_siteFunctions_buildStatus();
+    return Dumper($cac->_siteFunctions_buildStatus());
 }
 
 sub cmd_listservers {
@@ -144,9 +144,7 @@ sub main() {
     }
 
     my $result = $cmds->{$cmd}{'cmd'}($cac,@ARGV);;
-
-    print("\n\n");
-    print(Dumper($result));
+    print($result);
 
 }
 main();
