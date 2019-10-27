@@ -259,7 +259,7 @@ sub _scrape_index {
         }
 
         my $panelmap = {
-            'Current OS' => 'templatename',
+            'Current OS:' => 'templatename',
             'IPv4:' => 'ipv4_address2',
             'IPv6:' => 'ipv6_address',
         };
