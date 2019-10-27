@@ -162,6 +162,10 @@ sub _scrape_index {
         if (!defined($this->{_status})) {
             die("Could not find expected tag");
         }
+        # _status:
+        # green == up
+        # #d9534f == down
+        # Could use icon instead
 
         my $infotext = $panel->look_down(
             '_tag','button',
