@@ -279,7 +279,7 @@ sub _scrape_index {
 sub _scrape_templates {
     my $self = shift;
 
-    $self->login()
+    $self->login();
 
     # TODO - use a real cache
     my $cnm = $self->{_cache}{_scrape_index}{CustID};
