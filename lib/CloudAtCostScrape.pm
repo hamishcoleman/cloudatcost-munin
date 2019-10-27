@@ -247,6 +247,8 @@ sub _scrape_templates {
     my $self = shift;
     my $cnm = shift; # CustID from _scape_index above
 
+    die "Need cnm" if (!defined($cnm));
+
     my $tail = 'panel/_config/cloudpro-add-server.php?CNM=' . $cnm;
     my $tree = $self->_get_maybe_login_2tree($tail);
 
