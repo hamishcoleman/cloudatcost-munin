@@ -71,7 +71,7 @@ sub cmd_listservers {
     $s .= "CustID: ". $data->{CustID} . "\n";
 
     my $hackdb = data2hackdb($data->{servers});
-    $s .= $hackdb->extract(qw(id servername ipv4_address _status))->to_string_pretty();
+    $s .= $hackdb->extract(qw(id servername ipv4_address ipv6_address cpu ram ssd _status))->to_string_pretty();
     # cpu ram storage mode
 
     return $s;

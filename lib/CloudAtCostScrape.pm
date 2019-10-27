@@ -243,12 +243,65 @@ sub _scrape_index {
             die("Could not find expected tag");
         }
 
+        if ($tmp1 =~ m/^PowerCycle.\d+,\s+"([^"]+)"/) {
+            $this->{vmname} = $1;
+        } else {
+            die("Could not find expected tag");
+        }
+
+        # go looking for the internal name
+        $tmp1 = $panel->look_down(
+            '_tag', 'div',
+            'class', 'panel-body',
+        );
+        if (!defined($tmp1)) {
+            die("Could not find expected tag");
+        }
+
+        my $panelmap = {
+            'Current OS' => 'templatename',
+            'IPv4:' => 'ipv4_address2',
+            'IPv6:' => 'ipv6_address',
+        };
+        for my $tr ($tmp1->look_down('_tag','tr')) {
+            my $tr0text= $tr->address('.0')->as_trimmed_text();
+            next if (!$tr0text);
+            my $key = $panelmap->{$tr0text};
+
+            if ($key) {
+                my $val = $tr->address('.1')->as_trimmed_text();
+                $val =~ s/^\x{a0}*//;
+
+                $this->{$key} = $val;
+            } elsif ($tr0text =~ m/(\d+)\sCPU:/) {
+                $this->{cpu} = $1;
+                my $pct = $tr->address('.1')->look_down('class','sr-only');
+                if (!defined($pct)) {
+                    die("Could not find expected tag");
+                }
+                $this->{cpuusage} = $pct->as_trimmed_text();
+            } elsif ($tr0text =~ m/(\d+)MB\sRAM:/) {
+                $this->{ram} = $1;
+                my $pct = $tr->address('.1')->look_down('class','sr-only');
+                if (!defined($pct)) {
+                    die("Could not find expected tag");
+                }
+                $this->{ramusage} = $pct->as_trimmed_text();
+            } elsif ($tr0text =~ m/(\d+)GB\sSSD:/) {
+                $this->{ssd} = $1;
+                my $pct = $tr->address('.1')->look_down('class','sr-only');
+                if (!defined($pct)) {
+                    die("Could not find expected tag");
+                }
+                $this->{ssdusage} = $pct->as_trimmed_text();
+            }
+
+        }
+
         # TODO from the html
-        # - Current OS
-        # - IPv6 if enabled
+        # - IPv6
         #   - router and network available from
         #       - https://panel.cloudatcost.com/panel/_config/pop/ipv6.php?sid=255173351
-        # - CPU/RAM/SSD provisioned and percentage
         # - hostname
         # - type "CloudPRO v1"
         # - type "CloudPRO v3"
@@ -261,7 +314,6 @@ sub _scrape_index {
         # - vncport, vnjcpass
         # - servertype
         # - template
-        # - cpu, cpuusage, ram, ramusage, storage, hdusage
         # - status
         # - panel_note
         # - uid
