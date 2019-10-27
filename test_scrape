@@ -92,6 +92,10 @@ sub cmd_listtemplates {
     return $s;
 }
 
+sub cmd_todo {
+    ...;
+}
+
 my $cmds = {
     'buildstatus'   => {
         cmd  => \&cmd_buildstatus,
@@ -104,6 +108,26 @@ my $cmds = {
     'listtemplates'   => {
         cmd  => \&cmd_listtemplates,
         help => 'Scape the vm template details',
+    },
+    'build-cloud-pro' => {
+        cmd  => \&cmd_todo,
+        help => 'TODO',
+    },
+    'power' => {
+        cmd  => \&cmd_todo,
+        help => 'TODO',
+    },
+    'delete' => {
+        cmd  => \&cmd_todo,
+        help => 'TODO',
+    },
+    'renameserver' => {
+        cmd  => \&cmd_todo,
+        help => 'TODO',
+    },
+    'console' => {
+        cmd  => \&cmd_todo,
+        help => 'TODO',
     },
 };
 
