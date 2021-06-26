@@ -394,6 +394,8 @@ sub rename {
 
     # TODO:
     # check for errors
+    # - looks like the website doesnt check for errors
+    # - a zero byte result is returned by the GET
     return $self;
 }
 
