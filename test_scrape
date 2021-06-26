@@ -125,6 +125,27 @@ sub cmd_renameserver {
     return $s;
 }
 
+sub cmd_poweroff {
+    my $cac = shift;
+    my $sid = shift;
+
+    my $data = $cac->_scrape_index();
+    my $server = $data->{servers}{$sid};
+
+    if (!defined($server)) {
+        die("Unknown server id");
+    }
+
+    my $result = $server->poweroff();
+
+    my $s = '';
+    if ($option->{raw}) {
+        $s .= "\n".Dumper($result)."\n";
+    }
+
+    return $s;
+}
+
 sub cmd_todo {
     ...;
 }
@@ -146,9 +167,9 @@ my $cmds = {
         cmd  => \&cmd_todo,
         help => 'TODO',
     },
-    'power' => {
-        cmd  => \&cmd_todo,
-        help => 'TODO',
+    'poweroff' => {
+        cmd  => \&cmd_poweroff,
+        help => 'Power off server',
     },
     'delete' => {
         cmd  => \&cmd_todo,

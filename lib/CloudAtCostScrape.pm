@@ -144,6 +144,28 @@ sub _siteFunctions_buildStatus {
     return $self->Mech()->content();
 }
 
+sub _siteFunctions_PowerCycle {
+    my $self = shift;
+    my $cycle = shift;
+    # cycle values:
+    # 0 = power down
+    # 1 = power up
+    # 2 = reboot
+    my $vmname = shift;
+    my $sid = shift;
+
+    # FIXME
+    # - dont opencode the URL creation
+    my $tail = "panel/_config/powerCycle.php?sid=" . $sid . "&vmname=" . $vmname . "&cycle=" . $cycle;
+    $self->_get_maybe_login($tail);
+
+    return $self->Mech()->content();
+    # TODO:
+    # check for errors
+    # - looks like the website doesnt check for errors, just reloads the index page
+    # 'Server Successfully Powered Off'
+}
+
 sub _scrape_index {
     my $self = shift;
     my $tree = shift;
@@ -419,6 +441,12 @@ sub rename {
     # - looks like the website doesnt check for errors
     # - a zero byte result is returned by the GET
     return $self;
+}
+
+sub poweroff {
+    my $self = shift;
+
+    return $self->Parent()->_siteFunctions_PowerCycle(0, $self->{vmname}, $self->{id});
 }
 
 1;
