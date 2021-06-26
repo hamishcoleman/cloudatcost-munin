@@ -165,7 +165,7 @@ my $cmds = {
 };
 
 
-sub main() { 
+sub main() {
     HC::Common::do_options($option,@option_list);
     if (defined($option->{help})) {
         print("Sub commands:\n\n");
