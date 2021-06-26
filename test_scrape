@@ -61,6 +61,19 @@ sub cmd_buildstatus {
 sub cmd_listservers {
     my $cac = shift;
 
+    my @fields = qw(
+        id
+        servername
+        ipv4_address
+        ipv6_address
+        cpu
+        ram
+        ssd
+        _status
+    );
+
+    push @fields, @_;
+
     my $data = $cac->_scrape_index();
 
     my $s = '';
@@ -69,7 +82,7 @@ sub cmd_listservers {
     }
 
     my $hackdb = data2hackdb($data->{servers});
-    $s .= $hackdb->extract(qw(id servername ipv4_address ipv6_address cpu ram ssd _status))->to_string_pretty();
+    $s .= $hackdb->extract(@fields)->to_string_pretty();
     # cpu ram storage mode
 
     return $s;
