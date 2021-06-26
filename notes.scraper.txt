@@ -88,3 +88,6 @@ login:
     https://panel.cloudatcost.com/manage-check2.php set PSPSESSID, redirect to
     https://panel.cloudatcost.com/index.php
 
+Rename Server:
+    https://panel.cloudatcost.com/panel/_config/ServerName.php?ND=$id&NN=$nnam
+

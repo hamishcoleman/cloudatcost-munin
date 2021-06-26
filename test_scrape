@@ -103,6 +103,28 @@ sub cmd_listtemplates {
     return $s;
 }
 
+sub cmd_renameserver {
+    my $cac = shift;
+    my $sid = shift;
+    my $name = shift;
+
+    my $data = $cac->_scrape_index();
+    my $server = $data->{servers}{$sid};
+
+    if (!defined($server)) {
+        die("Unknown server id");
+    }
+
+    my $result = $server->rename($name);
+
+    my $s = '';
+    if ($option->{raw}) {
+        $s .= "\n".Dumper($result)."\n";
+    }
+
+    return $s;
+}
+
 sub cmd_todo {
     ...;
 }
@@ -133,8 +155,8 @@ my $cmds = {
         help => 'TODO',
     },
     'renameserver' => {
-        cmd  => \&cmd_todo,
-        help => 'TODO',
+        cmd  => \&cmd_renameserver,
+        help => 'Rename the server with the given sid',
     },
     'console' => {
         cmd  => \&cmd_todo,

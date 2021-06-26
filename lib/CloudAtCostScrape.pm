@@ -175,7 +175,12 @@ sub _scrape_index {
         my $hostname = $title->as_trimmed_text();
         $hostname =~ s/^\x{a0}*//;
 
-        my $this = {};
+        my $this = CloudAtCostScrape::Server->new();
+        $this->Parent($self);
+
+        # TODO:
+        # - set properties of the Server object using the class
+
         $this->{servername} = $hostname;
         $this->{_status} = $title->look_down('_tag','font')->attr('color');
         if (!defined($this->{_status})) {
@@ -350,6 +355,46 @@ sub _scrape_templates {
         push @{$db->{data}}, $this;
     }
     return $db;
+}
+
+1;
+
+package CloudAtCostScrape::Server;
+use warnings;
+use strict;
+#
+# An Object to allow easily working with servers
+#
+
+sub new {
+    my $class = shift;
+    my $self = {};
+    bless $self, $class;
+
+    return $self;
+}
+
+sub Parent {
+    my $self = shift;
+    my $val = shift;
+    if (defined($val)) {
+        $self->{_parent} = $val;
+    }
+    return $self->{_parent};
+}
+
+sub rename {
+    my $self = shift;
+    my $name = shift;
+
+    return undef if (!defined($name));
+
+    my $tail = 'panel/_config/ServerName.php?ND=' . $self->{id} . '&NN=' . $name;
+    my $tree = $self->Parent()->_get_maybe_login_2tree($tail);
+
+    # TODO:
+    # check for errors
+    return $self;
 }
 
 1;
