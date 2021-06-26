@@ -321,23 +321,45 @@ sub _scrape_index {
     return $db;
 }
 
+sub _scrape_infralist {
+    my $self = shift;
+    my $mech = $self->Mech();
+
+    my $tail = 'build';
+    $self->_get_maybe_login($tail);
+    my $form = $mech->form_id('build');
+
+    if (!defined($form)) {
+        die("cannot find form, probably the website changed");
+    }
+
+    my @buttons = $form->find_input('infra');
+
+    if (scalar(@buttons) == 0) {
+        die("No infra buttons found");
+    }
+
+    if (scalar(@buttons) > 1) {
+        # more than one button .. needs testing
+        ...;
+    }
+
+    #$form->dump();
+
+    return $mech->click('infra');
+
+    # TODO:
+    # Handle multiple infra by returning a list of options
+}
+
 sub _scrape_templates {
     my $self = shift;
 
-    ...;
-    # current build page works differently
-    # TODO:
-    # - re-create this workflow
+    $self->_scrape_infralist();
+    # TODO
+    # if we start handling the infralist properly, this needs to change
 
-    $self->login();
-
-    # TODO - use a real cache
-    my $cnm = $self->{_cache}{_scrape_index}{CustID};
-
-    die "Need cnm" if (!defined($cnm));
-
-    my $tail = 'panel/_config/cloudpro-add-v2-server.php?CNM=' . $cnm . '&U=' . $self->{login};
-    my $tree = $self->_get_maybe_login_2tree($tail);
+    my $tree = $self->_last2tree();
 
     my $db = {};
 
