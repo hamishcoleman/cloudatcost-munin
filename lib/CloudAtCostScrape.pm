@@ -159,17 +159,6 @@ sub _scrape_index {
 
     my $db = {};
 
-    # Look for the customer ID
-    my $tmp1 = $tree->look_down(
-        '_tag', 'a',
-        'onclick', qr/^cloudpro/,
-    )->attr('onclick');
-    if ($tmp1 =~ m/^cloudpro\((\d+),\s+'([^']+)'\)/) {
-        $db->{CustID} = $1;
-    } else {
-        die("Could not find expected tag in '$tmp1'");
-    }
-
     for my $panel ($tree->look_down(
                     '_tag', 'div',
                     'class', 'panel panel-default'
@@ -187,7 +176,6 @@ sub _scrape_index {
         $hostname =~ s/^\x{a0}*//;
 
         my $this = {};
-        $this->{CustID} = $db->{CustID};
         $this->{servername} = $hostname;
         $this->{_status} = $title->look_down('_tag','font')->attr('color');
         if (!defined($this->{_status})) {
@@ -330,6 +318,11 @@ sub _scrape_index {
 
 sub _scrape_templates {
     my $self = shift;
+
+    ...;
+    # current build page works differently
+    # TODO:
+    # - re-create this workflow
 
     $self->login();
 
