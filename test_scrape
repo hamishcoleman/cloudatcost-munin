@@ -52,6 +52,27 @@ sub data2hackdb {
     return $db;
 }
 
+sub raw_output {
+    my $data = shift;
+    if ($option->{raw}) {
+        return "\n".Dumper($data)."\n";
+    }
+    return '';
+}
+
+sub server_lookupsid {
+    my $cac = shift;
+    my $sid = shift;
+
+    my $data = $cac->_scrape_index();
+    my $server = $data->{servers}{$sid};
+
+    if (!defined($server)) {
+        die("Unknown server id $sid");
+    }
+    return $server;
+}
+
 sub cmd_buildstatus {
     my $cac = shift;
 
@@ -77,9 +98,7 @@ sub cmd_listservers {
     my $data = $cac->_scrape_index();
 
     my $s = '';
-    if ($option->{raw}) {
-        $s .= "\n".Dumper($data)."\n";
-    }
+    $s .= raw_output($data);
 
     my $hackdb = data2hackdb($data->{servers});
     $s .= $hackdb->extract(@fields)->to_string_pretty();
@@ -93,9 +112,7 @@ sub cmd_listtemplates {
     my $data = $cac->_scrape_templates();
 
     my $s = '';
-    if ($option->{raw}) {
-        $s .= "\n".Dumper($data)."\n";
-    }
+    $s .= raw_output($data);
 
     my $hackdb = data2hackdb($data->{data});
     $s .= $hackdb->extract(qw(id detail))->to_string_pretty();
@@ -108,43 +125,24 @@ sub cmd_renameserver {
     my $sid = shift;
     my $name = shift;
 
-    my $data = $cac->_scrape_index();
-    my $server = $data->{servers}{$sid};
-
-    if (!defined($server)) {
-        die("Unknown server id");
-    }
-
+    my $server = server_lookupsid($cac, $sid);
     my $result = $server->rename($name);
 
-    my $s = '';
-    if ($option->{raw}) {
-        $s .= "\n".Dumper($result)."\n";
-    }
-
-    return $s;
+    return raw_output($result);
 }
 
 sub cmd_poweroff {
     my $cac = shift;
     my $sid = shift;
 
-    my $data = $cac->_scrape_index();
-    my $server = $data->{servers}{$sid};
-
-    if (!defined($server)) {
-        die("Unknown server id");
-    }
-
+    my $server = server_lookupsid($cac, $sid);
     my $result = $server->poweroff();
 
-    my $s = '';
-    if ($option->{raw}) {
-        $s .= "\n".Dumper($result)."\n";
-    }
-
-    return $s;
+    return raw_output($result);
 }
+
+
+
 
 sub cmd_todo {
     ...;
