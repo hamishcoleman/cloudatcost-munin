@@ -446,7 +446,15 @@ sub rename {
 sub poweroff {
     my $self = shift;
 
-    return $self->Parent()->_siteFunctions_PowerCycle(0, $self->{vmname}, $self->{id});
+    return $self->Parent()->_siteFunctions_PowerCycle(
+        0, $self->{vmname}, $self->{id});
+}
+
+sub poweron {
+    my $self = shift;
+
+    return $self->Parent()->_siteFunctions_PowerCycle(
+        1, $self->{vmname}, $self->{id});
 }
 
 1;

@@ -141,8 +141,15 @@ sub cmd_poweroff {
     return raw_output($result);
 }
 
+sub cmd_poweron {
+    my $cac = shift;
+    my $sid = shift;
 
+    my $server = server_lookupsid($cac, $sid);
+    my $result = $server->poweron();
 
+    return raw_output($result);
+}
 
 sub cmd_todo {
     ...;
@@ -168,6 +175,10 @@ my $cmds = {
     'poweroff' => {
         cmd  => \&cmd_poweroff,
         help => 'Power off server',
+    },
+    'poweron' => {
+        cmd  => \&cmd_poweron,
+        help => 'Power on server',
     },
     'delete' => {
         cmd  => \&cmd_todo,
