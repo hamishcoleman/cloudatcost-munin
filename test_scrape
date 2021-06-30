@@ -4,8 +4,8 @@ use strict;
 
 # allow the libs to be in the bin dir
 use FindBin;
-use lib "$FindBin::RealBin/lib";
 use lib "/home/hamish/s/bin/lib";
+use lib "$FindBin::RealBin/lib";
 
 use Data::Dumper;
 $Data::Dumper::Indent = 1;
@@ -197,21 +197,11 @@ my $cmds = {
 
 sub main() {
     HC::Common::do_options($option,@option_list);
-    if (defined($option->{help})) {
-        print("Sub commands:\n\n");
-        for my $cmd (sort(keys(%{$cmds}))) {
-            printf("%-18s %s\n",$cmd,$cmds->{$cmd}{help});
-        }
-        return;
-    }
+    HC::Common::subcommand_help($option, $cmds) && return;
 
-    my ($username,$password);
-    if (defined($option->{credfile})) {
-        my $cred = HC::CredentialStore->new($option->{credfile});
-        die("credfile error") if (!defined($cred));
+    my $cred = HC::CredentialStore->new($option->{credfile});
 
-        ($username,$password) = $cred->lookup($option->{preset});
-    }
+    my ($username,$password) = $cred->lookup($option->{preset});
 
     die "Need username credentials" if (!defined($username));
     die "Need password credentials" if (!defined($password));
@@ -226,13 +216,7 @@ sub main() {
     $cac->set_credentials($username,$password);
 
     my $cmd = shift(@ARGV);
-    if (!defined($cmd) || !defined($cmds->{$cmd})) {
-        die('No such sub-command');
-    }
-
-    my $result = $cmds->{$cmd}{'cmd'}($cac,@ARGV);;
-    print($result);
-
+    print(HC::Common::subcommand($cmds, $cmd, $cac));
 }
 main();
 
