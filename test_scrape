@@ -114,7 +114,9 @@ sub cmd_listtemplates {
     my $s = '';
     $s .= raw_output($data);
 
-    my $hackdb = data2hackdb($data->{data});
+    my $hackdb = HC::HackDB->new();
+    $hackdb->add_rows_array($data->{data});
+
     $s .= $hackdb->extract(qw(id detail))->to_string_pretty();
 
     return $s;
