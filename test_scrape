@@ -31,27 +31,6 @@ my @option_list = (
     "raw!",
 );
 
-sub data2hackdb {
-    my $data = shift;
-    return undef if (!$data);
-
-    if (ref($data) eq 'HASH') {
-        # assume that hashes are simply unique arrays and the key has no meaning
-        my $newdata = qw();
-        @{$newdata} = values(%{$data});
-        $data = $newdata;
-    }
-
-    my $db = HC::HackDB->new();
-    for my $data_row (@{$data}) {
-        my $row = $db->empty_row();
-
-        $row->set_from_hash($data_row);
-        $db->add_row($row);
-    }
-    return $db;
-}
-
 sub raw_output {
     my $data = shift;
     if ($option->{raw}) {
@@ -100,7 +79,9 @@ sub cmd_listservers {
     my $s = '';
     $s .= raw_output($data);
 
-    my $hackdb = data2hackdb($data->{servers});
+    my $hackdb = HC::HackDB->new();
+    $hackdb->add_rows_hash($data->{servers});
+
     $s .= $hackdb->extract(@fields)->to_string_pretty();
     # cpu ram storage mode
 
