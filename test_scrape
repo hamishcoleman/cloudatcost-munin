@@ -82,7 +82,7 @@ sub cmd_listservers {
     my $hackdb = HC::HackDB->new();
     $hackdb->add_rows_hash($data->{servers});
 
-    $s .= $hackdb->extract(@fields)->to_string_pretty();
+    $s .= $hackdb->extract(@fields)->order_by('servername')->to_string_pretty();
     # cpu ram storage mode
 
     return $s;
@@ -98,7 +98,7 @@ sub cmd_listtemplates {
     my $hackdb = HC::HackDB->new();
     $hackdb->add_rows_array($data->{data});
 
-    $s .= $hackdb->extract(qw(id detail))->to_string_pretty();
+    $s .= $hackdb->extract(qw(id detail))->order_by('detail')->to_string_pretty();
 
     return $s;
 }
