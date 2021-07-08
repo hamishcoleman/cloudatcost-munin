@@ -164,6 +164,10 @@ sub cmd_output_dns {
     # - output username as well?
     # - $s .= "; $ORIGIN zone\n";
 
+    # FIXME
+    # - with a more improved HackDB, this is mostly just re-usable
+    #   presentation logic and could essentially be a SELECT
+
     $hackdb->foreach(sub {
         my $row = $_;
         my $servername = $row->field('servername');
