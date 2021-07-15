@@ -69,7 +69,7 @@ sub cmd_listservers {
         cpu
         ram
         ssd
-        _status
+        _s
     );
 
     push @fields, @_;

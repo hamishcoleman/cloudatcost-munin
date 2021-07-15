@@ -1,6 +1,7 @@
 package CloudAtCostScrape;
 use warnings;
 use strict;
+use utf8;
 #
 # Screen scrape the CloudAtCost web pages
 #
@@ -204,14 +205,19 @@ sub _scrape_index {
         # - set properties of the Server object using the class
 
         $this->{servername} = $hostname;
-        $this->{_status} = $title->look_down('_tag','font')->attr('color');
-        if (!defined($this->{_status})) {
+        $this->{_statusraw} = $title->look_down('_tag','font')->attr('color');
+        # Could use icon instead
+        if (!defined($this->{_statusraw})) {
             die("Could not find expected tag");
         }
-        # _status:
-        # green == up
-        # #d9534f == down
-        # Could use icon instead
+        my $map_status = {
+            'green' => '▲', # "Up"
+            '#d9534f' => '▼', # "Down"
+        };
+        $this->{_s} = $map_status->{$this->{_statusraw}};
+        if (!defined($this->{_s})) {
+            die("Could not map status code $this->{_statusraw}");
+        }
 
         my $infotext = $panel->look_down(
             '_tag','button',
