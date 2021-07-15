@@ -137,24 +137,11 @@ sub cmd_poweron {
 sub cmd_output_dns {
     my $cac = shift;
 
-    my @fields = qw(
-        id
-        servername
-        ipv4_address
-        ipv6_address
-        cpu
-        ram
-        ssd
-        _status
-    );
-
-    push @fields, @_;
-
     my $data = $cac->_scrape_index();
     my $hackdb = HC::HackDB->new();
     $hackdb->add_rows_hash($data->{servers});
 
-    $hackdb = $hackdb->extract(@fields)->order_by('servername');
+    $hackdb = $hackdb->order_by('servername');
 
     my $servers = {};
     my $s = '';
