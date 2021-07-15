@@ -401,6 +401,59 @@ sub _scrape_templates {
     return $db;
 }
 
+sub resources {
+    my $self = shift;
+
+    $self->_scrape_infralist();
+    # TODO
+    # if we start handling the infralist properly, this needs to change
+
+    my $tree = $self->_last2tree();
+
+    my $db = {};
+    $db->{total}{type} = 'total';
+    $db->{used}{type} = 'used';
+    $db->{used_pc}{type} = 'used_pc';
+
+    my $td = $tree->look_down(
+        '_tag' => 'td',
+        sub { $_[0]->as_trimmed_text() =~ m/Daily Limit:/ }
+    );
+    if (!defined($td)) {
+        die("Could not find table");
+    }
+    my $table = $td->parent()->parent();
+
+    for my $row ($table->look_down('_tag', 'tr')) {
+        my @data = $row->look_down('_tag', 'td');
+        my ($total, $name) = $data[0]->as_trimmed_text()  =~ m/(\d+)\W([^:]+:)/;
+        my ($used_pc) = $data[1]->as_trimmed_text() =~ m/(\d+)%/;
+
+        # skip the rows with no resource name
+        next if (!defined($name));
+
+        my $map_name = {
+            'Daily Limit:' => 'builds',
+            'CPU:' => 'cpu',
+            'MB RAM:' => 'ram',
+            'GB SSD:' => 'ssd',
+        };
+
+        if (!defined($map_name->{$name})) {
+            die("Unknown name $name");
+        }
+        $name = $map_name->{$name};
+
+        my $used = $used_pc/100 * $total;
+
+        $db->{total}{$name} = $total;
+        $db->{used}{$name} = $used;
+        $db->{used_pc}{$name} = $used_pc . "%";
+    }
+
+    return $db;
+}
+
 1;
 
 package CloudAtCostScrape::Server;

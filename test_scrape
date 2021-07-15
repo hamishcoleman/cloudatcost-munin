@@ -195,6 +195,21 @@ sub cmd_output_dns {
     return $s;
 }
 
+sub cmd_resources {
+    my $cac = shift;
+    my $data = $cac->resources();
+
+    my $s = '';
+    $s .= raw_output($data);
+
+    my $hackdb = HC::HackDB->new();
+    $hackdb->add_rows_hash($data);
+
+    $s .= $hackdb->extract(qw(type cpu ram ssd builds))->order_by('type')->to_string_pretty();
+
+    return $s;
+}
+
 sub cmd_todo {
     ...;
 }
@@ -239,6 +254,10 @@ my $cmds = {
     'output_dns' => {
         cmd  => \&cmd_output_dns,
         help => 'Print out a the zonefile entries needed to define these servers',
+    },
+    'resources' => {
+        cmd  => \&cmd_resources,
+        help => 'Show available and used resources',
     },
 };
 
