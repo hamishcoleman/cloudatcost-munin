@@ -118,22 +118,28 @@ sub cmd_renameserver {
 
 sub cmd_poweroff {
     my $cac = shift;
-    my $sid = shift;
 
-    my $server = server_lookupsid($cac, $sid);
-    my $result = $server->poweroff();
+    my $result;
+    while (my $sid = shift) {
+        my $server = server_lookupsid($cac, $sid);
+        $result .= $server->poweroff();
+        $result .= "\n";
+    }
 
-    return raw_output($result);
+    return $result;
 }
 
 sub cmd_poweron {
     my $cac = shift;
-    my $sid = shift;
 
-    my $server = server_lookupsid($cac, $sid);
-    my $result = $server->poweron();
+    my $result;
+    while (my $sid = shift) {
+        my $server = server_lookupsid($cac, $sid);
+        $result .= $server->poweron();
+        $result .= "\n";
+    }
 
-    return raw_output($result);
+    return $result;
 }
 
 sub cmd_output_dns {
