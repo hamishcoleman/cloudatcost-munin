@@ -217,9 +217,10 @@ sub cmd_output_ansible {
         }
         $servers->{$servername}++;
 
-        $s .= sprintf("%s ansible_host=%s ansible_user=root ansible_password=%s\n",
+        $s .= sprintf("%s ansible_host=%s ansible_user=user ansible_password=%s ansible_become_method=su ansible_become_password=%s\n",
             $servername,
             $ipv4_address,
+            $password,
             $password,
         );
     });
