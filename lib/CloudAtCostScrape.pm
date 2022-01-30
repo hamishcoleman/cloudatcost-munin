@@ -74,6 +74,14 @@ sub _login {
         # return undef;
     }
 
+    if ($mech->uri() =~ m%/login.php?error=41$%) {
+        # inside form name="login-form": <font color="red">Failed! Payment of Overdue Invoices Required.</font>
+        die("Could not login: Overdue invoices");
+        # return undef;
+    }
+
+
+
     # Since logging in always gives us an index page, we may as well scrape it
     my $tree = $self->_last2tree();
     $self->_scrape_index($tree);
@@ -264,11 +272,9 @@ sub _scrape_index {
             die("Could not find expected tag");
         }
 
-        if ($tmp1 =~ m/^PowerCycle.\d+,\s+"([^"]+)"/) {
-            $this->{vmname} = $1;
-        } else {
-            die("Could not find expected tag");
-        }
+        # TODO:
+        # RDNS(sid,name,P)
+        # DELETECPRO2(sid,name,CID,vmname,V)
 
         # go looking for the internal name
         $tmp1 = $panel->look_down(
