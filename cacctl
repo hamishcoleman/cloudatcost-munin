@@ -119,11 +119,11 @@ sub cmd_renameserver {
 sub cmd_poweroff {
     my $cac = shift;
 
-    my $result;
+    my $result = '';
     while (my $sid = shift) {
         my $server = server_lookupsid($cac, $sid);
-        $result .= $server->poweroff();
-        $result .= "\n";
+        my $r = $server->poweroff();
+        $result .= $r . "\n";
     }
 
     return $result;

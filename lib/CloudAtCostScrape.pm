@@ -168,11 +168,18 @@ sub _siteFunctions_PowerCycle {
     my $tail = "panel/_config/powerCycle.php?sid=" . $sid . "&vmname=" . $vmname . "&cycle=" . $cycle;
     $self->_get_maybe_login($tail);
 
-    return $self->Mech()->content();
+    my $content = $self->Mech()->content();
+
+    if ($content =~ m/^Server Successfully /) {
+        return 1;
+    } else {
+        return undef;
+    }
     # TODO:
     # check for errors
     # - looks like the website doesnt check for errors, just reloads the index page
     # 'Server Successfully Powered Off'
+    # 'Server Successfully Powered On'
 }
 
 sub _scrape_index {
