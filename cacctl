@@ -4,6 +4,8 @@ use strict;
 use utf8;
 binmode STDOUT, ':utf8';
 
+use IO::Socket qw(AF_INET SOCK_STREAM);
+
 # allow the libs to be in the bin dir
 use FindBin;
 use lib "/home/hamish/s/bin/lib";
@@ -251,6 +253,39 @@ sub cmd_resources {
     return $s;
 }
 
+sub cmd_output_down {
+    my $cac = shift;
+
+    my $data = $cac->_scrape_index();
+    my $hackdb = HC::HackDB->new();
+    $hackdb->add_rows_hash($data->{servers});
+
+    $hackdb = $hackdb->order_by('servername');
+
+    my $s = '';
+
+    $hackdb->foreach(sub {
+        my $row = $_;
+        my $ipv4_address = $row->field('ipv4_address');
+        my $id = $row->field('id');
+
+        my $sock = IO::Socket->new(
+            Domain => AF_INET,
+            Type => SOCK_STREAM,
+            proto => 'tcp',
+            PeerPort => 22,
+            PeerHost => $ipv4_address,
+            Timeout => 10,
+        );
+
+        return if (defined($sock));
+
+        $s .= $id . "\n";
+    });
+
+    return $s;
+}
+
 sub cmd_todo {
     ...;
 }
@@ -303,6 +338,10 @@ my $cmds = {
     'resources' => {
         cmd  => \&cmd_resources,
         help => 'Show available and used resources',
+    },
+    'output_down' => {
+        cmd  => \&cmd_output_down,
+        help => 'Print out the SIDs for all servers that are not responding',
     },
 };
 
