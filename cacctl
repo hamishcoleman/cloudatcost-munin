@@ -4,8 +4,6 @@ use strict;
 use utf8;
 binmode STDOUT, ':utf8';
 
-use IO::Socket qw(AF_INET SOCK_STREAM);
-
 # allow the libs to be in the bin dir
 use FindBin;
 use lib "/home/hamish/s/bin/lib";
@@ -69,12 +67,12 @@ sub cmd_listservers {
         id
         servername
         ipv4_address
-        ipv6_address
         cpu
         ram
         ssd
         _s
     );
+        # ipv6_address
 
     push @fields, @_;
 
@@ -82,6 +80,15 @@ sub cmd_listservers {
 
     my $s = '';
     $s .= raw_output($data);
+
+    # TODO: this would be better with a calculated field feature in HackDB
+    #
+    # check if the up status has been requested
+    if (grep {"_u" eq $_} @fields) {
+        for my $server (values(%{$data->{servers}})) {
+            $server->check_up();
+        }
+    }
 
     my $hackdb = HC::HackDB->new();
     $hackdb->add_rows_hash($data->{servers});
@@ -257,32 +264,13 @@ sub cmd_output_down {
     my $cac = shift;
 
     my $data = $cac->_scrape_index();
-    my $hackdb = HC::HackDB->new();
-    $hackdb->add_rows_hash($data->{servers});
-
-    $hackdb = $hackdb->order_by('servername');
 
     my $s = '';
-
-    $hackdb->foreach(sub {
-        my $row = $_;
-        my $ipv4_address = $row->field('ipv4_address');
-        my $id = $row->field('id');
-
-        my $sock = IO::Socket->new(
-            Domain => AF_INET,
-            Type => SOCK_STREAM,
-            proto => 'tcp',
-            PeerPort => 22,
-            PeerHost => $ipv4_address,
-            Timeout => 10,
-        );
-
-        return if (defined($sock));
-
-        $s .= $id . "\n";
-    });
-
+    for my $server (values(%{$data->{servers}})) {
+        if (!$server->check_up()) {
+            $s .= $server->{id} . "\n";
+        }
+    }
     return $s;
 }
 

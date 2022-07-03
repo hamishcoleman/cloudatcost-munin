@@ -482,6 +482,8 @@ use strict;
 # An Object to allow easily working with servers
 #
 
+use IO::Socket qw(AF_INET SOCK_STREAM);
+
 sub new {
     my $class = shift;
     my $self = {};
@@ -527,6 +529,35 @@ sub poweron {
 
     return $self->Parent()->_siteFunctions_PowerCycle(
         1, $self->{vmname}, $self->{id});
+}
+
+sub check_up {
+    my $self = shift;
+
+    #if (defined($self->{_u})) {
+    #    return $self->{_u};
+    #}
+
+    my $ipv4_address = $self->{ipv4_address};
+
+    my $sock = IO::Socket->new(
+        Domain => AF_INET,
+        Type => SOCK_STREAM,
+        proto => 'tcp',
+        PeerPort => 22,
+        PeerHost => $ipv4_address,
+        Timeout => 10,
+    );
+
+    if (defined($sock)) {
+        $self->{_up}=1;
+        $self->{_u}='▲';
+    } else {
+        $self->{_up}=0;
+        $self->{_u}='▼';
+    }
+
+    return undef;
 }
 
 1;
