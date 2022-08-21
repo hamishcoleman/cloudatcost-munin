@@ -151,6 +151,19 @@ sub cmd_poweron {
     return $result;
 }
 
+sub cmd_powercycle {
+    my $cac = shift;
+
+    my $result;
+    while (my $sid = shift) {
+        my $server = server_lookupsid($cac, $sid);
+        $result .= $server->powercycle();
+        $result .= "\n";
+    }
+
+    return $result;
+}
+
 sub cmd_output_dns {
     my $cac = shift;
 
@@ -302,6 +315,10 @@ my $cmds = {
     'poweron' => {
         cmd  => \&cmd_poweron,
         help => 'Power on server',
+    },
+    'powercycle' => {
+        cmd  => \&cmd_powercycle,
+        help => 'Power cycle server',
     },
     'delete' => {
         cmd  => \&cmd_todo,

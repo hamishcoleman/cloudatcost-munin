@@ -531,6 +531,13 @@ sub poweron {
         1, $self->{vmname}, $self->{id});
 }
 
+sub powercycle {
+    my $self = shift;
+
+    return $self->Parent()->_siteFunctions_PowerCycle(
+        2, $self->{vmname}, $self->{id});
+}
+
 sub check_up {
     my $self = shift;
 
