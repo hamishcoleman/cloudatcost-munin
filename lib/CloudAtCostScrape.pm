@@ -332,6 +332,10 @@ sub _scrape_index {
 
         }
 
+        if ($this->{ipv4_address2} =~ m/Update$/) {
+            $this->{ip_update_required} = 1;
+        }
+
         # TODO from the html
         # - IPv6
         #   - router and network available from
