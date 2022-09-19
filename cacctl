@@ -164,6 +164,19 @@ sub cmd_powercycle {
     return $result;
 }
 
+sub cmd_delete {
+    my $cac = shift;
+
+    my $result;
+    while (my $sid = shift) {
+        my $server = server_lookupsid($cac, $sid);
+        $result .= $server->delete();
+        $result .= "\n";
+    }
+
+    return $result;
+}
+
 sub cmd_output_dns {
     my $cac = shift;
 
@@ -321,8 +334,8 @@ my $cmds = {
         help => 'Power cycle server',
     },
     'delete' => {
-        cmd  => \&cmd_todo,
-        help => 'TODO',
+        cmd  => \&cmd_delete,
+        help => 'Delete server',
     },
     'renameserver' => {
         cmd  => \&cmd_renameserver,

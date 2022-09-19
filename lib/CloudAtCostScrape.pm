@@ -182,6 +182,27 @@ sub _siteFunctions_PowerCycle {
     # 'Server Successfully Powered On'
 }
 
+sub _siteFunctions_cloudprodelete2 {
+    my $self = shift;
+    my $id = shift;
+    my $cid = shift;
+    my $vmname = shift;
+    my $reserve='false';
+
+    # FIXME
+    # - dont opencode the URL creation
+    my $tail = "panel/_config/serverdeletecloudpro.php?cid=" . $cid . "&sid=" . $id . "&svn=" . $vmname . "&reserve=" . $reserve;
+    $self->_get_maybe_login($tail);
+
+    my $content = $self->Mech()->content();
+
+    return $content;
+
+    # TODO:
+    # check for errors
+    # looks like the site returns an empty string
+}
+
 sub _scrape_index {
     my $self = shift;
     my $tree = shift;
@@ -279,9 +300,19 @@ sub _scrape_index {
             die("Could not find expected tag");
         }
 
+        # go looking for the customer ID
+        $tmp1 = $panel->look_down(
+            '_tag', 'a',
+            'onclick', qr/^DELETECPRO2/,
+        )->attr('onclick');
+        if ($tmp1 =~ m/^DELETECPRO2.\d+,\s+"[^"]+",\s+"(\d+)"/) {
+            $this->{cid} = $1;
+        } else {
+            die("Could not find expected tag");
+        }
+
         # TODO:
         # RDNS(sid,name,P)
-        # DELETECPRO2(sid,name,CID,vmname,V)
 
         # go looking for the internal name
         $tmp1 = $panel->look_down(
@@ -540,6 +571,13 @@ sub powercycle {
 
     return $self->Parent()->_siteFunctions_PowerCycle(
         2, $self->{vmname}, $self->{id});
+}
+
+sub delete {
+    my $self = shift;
+
+    return $self->Parent()->_siteFunctions_cloudprodelete2(
+        $self->{id}, $self->{cid}, $self->{vmname});
 }
 
 sub check_up {
