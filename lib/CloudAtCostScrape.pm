@@ -542,14 +542,18 @@ sub rename {
 
     return undef if (!defined($name));
 
+    # Max 64 char name
+
     my $tail = 'panel/_config/ServerName.php?ND=' . $self->{id} . '&NN=' . $name;
-    my $tree = $self->Parent()->_get_maybe_login_2tree($tail);
+    $self->Parent()->_get_maybe_login($tail);
+
+    my $content = $self->Parent()->Mech()->content();
 
     # TODO:
     # check for errors
     # - looks like the website doesnt check for errors
     # - a zero byte result is returned by the GET
-    return $self;
+    return $content;
 }
 
 sub poweroff {
