@@ -97,7 +97,7 @@ sub login {
     }
 
     if ($self->_login()) {
-        $self->{loginpok} = 1;
+        $self->{loginok} = 1;
         return 1;
     }
 
