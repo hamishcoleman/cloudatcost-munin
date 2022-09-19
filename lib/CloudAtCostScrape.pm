@@ -218,6 +218,20 @@ sub _scrape_index {
 
     my $db = {};
 
+    for my $scripttag ($tree->look_down(
+                    '_tag', 'script',
+                  )) {
+        my @tmp1 = $scripttag->content_list();
+        next if (!@tmp1);
+        my $script = $tmp1[0];
+
+        for my $line (split(/\n/, $script)) {
+            if ($line =~ m/#(\d+).*script-check-build-percent.php\?s=(.*)'/) {
+                $db->{builds}{$1} = $2;
+            }
+        }
+    }
+
     for my $panel ($tree->look_down(
                     '_tag', 'div',
                     'class', 'panel panel-default'
@@ -231,8 +245,20 @@ sub _scrape_index {
         my $sid = $title->attr('id');
         $sid =~ s/^PanelTitle_//;
 
-        my $hostname = $title->as_trimmed_text();
-        $hostname =~ s/^\x{a0}*//;
+        my $title_tag = $title->address('.0')->tag();
+
+        my $installing;
+        if ($title_tag eq 'font') {
+            $installing = 0;
+        } elsif ($title_tag eq 'i') {
+            $installing = 1;
+        } else {
+            die("Unknown tag $title_tag");
+        }
+
+        if ($title->as_trimmed_text() =~ m/Install Pending/) {
+            $installing = 1;
+        }
 
         my $this = CloudAtCostScrape::Server->new();
         $this->Parent($self);
@@ -240,13 +266,41 @@ sub _scrape_index {
         # TODO:
         # - set properties of the Server object using the class
 
-        $this->{servername} = $hostname;
-        $this->{_statusraw} = $title->look_down('_tag','font')->attr('color');
-        # Could use icon instead
-        if (!defined($this->{_statusraw})) {
-            die("Could not find expected tag");
+        $this->{id} = $sid;
+
+        my $hostname;
+        if ($installing) {
+            $this->{_installed} = 0;
+            $hostname = $db->{builds}{$sid};
+            if (!$hostname) {
+                $hostname = "Installing";
+            }
+        } else {
+            $this->{_installed} = 1;
+            $hostname = $title->as_trimmed_text();
+            $hostname =~ s/^\x{a0}*//;
         }
+
+        # TODO: servername might be "Installing"
+        $this->{servername} = $hostname;
+
+        if ($installing) {
+            $this->{_statusraw} = "installing";
+        } else {
+            my $tmp3 = $title->look_down('_tag','font');
+            if (!defined($tmp3)) {
+                die("Could not find expected tag");
+            }
+
+            $this->{_statusraw} = $tmp3->attr('color');
+            # Could use icon instead
+            if (!defined($this->{_statusraw})) {
+                die("Could not find expected tag");
+            }
+        }
+
         my $map_status = {
+            'installing' => 'X',
             'green' => '▲', # "Up"
             '#d9534f' => '▼', # "Down"
         };
@@ -275,8 +329,8 @@ sub _scrape_index {
             'Installed:' => 'sdate',
             'Netmask:' => 'ipv4_netmask',
             'Password:' => 'rootpass',
-            'Run Mode:' => 'mode',
-            'Server ID:' => 'id',
+            #'Run Mode:' => 'mode',
+            'Server ID:' => 'id2',
         };
         for my $tr ($info->look_down('_tag','tr')) {
             my $key = $tr->address('.0')->as_trimmed_text();
@@ -289,37 +343,38 @@ sub _scrape_index {
             $this->{$key} = $val;
         }
 
-        # go looking for the internal name
-        my $tmp1 = $panel->look_down(
-            '_tag', 'a',
-            'onclick', qr/^PowerCycle/,
-        )->attr('onclick');
-        if ($tmp1 =~ m/^PowerCycle.\d+,\s+"([^"]+)"/) {
-            $this->{vmname} = $1;
-        } else {
-            die("Could not find expected tag");
+        if (!$installing) {
+            # go looking for the internal name
+            my $tmp1 = $panel->look_down(
+                '_tag', 'a',
+                'onclick', qr/^PowerCycle/,
+            )->attr('onclick');
+            if ($tmp1 =~ m/^PowerCycle.\d+,\s+"([^"]+)"/) {
+                $this->{vmname} = $1;
+            } else {
+                die("Could not find expected tag");
+            }
+
+            # go looking for the customer ID
+            $tmp1 = $panel->look_down(
+                '_tag', 'a',
+                'onclick', qr/^DELETECPRO2/,
+            )->attr('onclick');
+            if ($tmp1 =~ m/^DELETECPRO2.\d+,\s+"[^"]+",\s+"(\d+)"/) {
+                $this->{cid} = $1;
+            } else {
+                die("Could not find expected tag");
+            }
+
+            # TODO:
+            # RDNS(sid,name,P)
         }
 
-        # go looking for the customer ID
-        $tmp1 = $panel->look_down(
-            '_tag', 'a',
-            'onclick', qr/^DELETECPRO2/,
-        )->attr('onclick');
-        if ($tmp1 =~ m/^DELETECPRO2.\d+,\s+"[^"]+",\s+"(\d+)"/) {
-            $this->{cid} = $1;
-        } else {
-            die("Could not find expected tag");
-        }
-
-        # TODO:
-        # RDNS(sid,name,P)
-
-        # go looking for the internal name
-        $tmp1 = $panel->look_down(
+        my $tmp2 = $panel->look_down(
             '_tag', 'div',
             'class', 'panel-body',
         );
-        if (!defined($tmp1)) {
+        if (!defined($tmp2)) {
             die("Could not find expected tag");
         }
 
@@ -328,7 +383,7 @@ sub _scrape_index {
             'IPv4:' => 'ipv4_address2',
             'IPv6:' => 'ipv6_address',
         };
-        for my $tr ($tmp1->look_down('_tag','tr')) {
+        for my $tr ($tmp2->look_down('_tag','tr')) {
             my $tr0text= $tr->address('.0')->as_trimmed_text();
             next if (!$tr0text);
             my $key = $panelmap->{$tr0text};
@@ -506,6 +561,61 @@ sub resources {
     }
 
     return $db;
+}
+
+sub build {
+    my $self = shift;
+    my $mech = $self->Mech();
+
+    $self->_scrape_infralist();
+    # TODO
+    # if we start handling the infralist properly, this needs to change
+
+    my $tree = $self->_last2tree();
+    my $button = $tree->look_down(
+        '_tag' => 'button',
+        'name' => 'build-submit',
+    );
+    if (!defined($button)) {
+        die("Could not find button");
+    }
+    my $button_value = $button->attr('value');
+
+    my $form = $mech->form_id('build-confirm');
+    $form->value('build-submit', $button_value);
+
+    $form->strict(1);
+
+    my $field = shift;
+    while (defined($field)) {
+        my $value = shift;
+        $form->value($field, $value);
+        $field = shift;
+    }
+
+    #return $form->dump();
+    $mech->submit();
+
+    $tree = $self->_last2tree();
+    $self->_scrape_index($tree);
+
+    # TODO:
+    # look through the servers, if there is only one installing, return it
+}
+
+sub build_check {
+    my $self = shift;
+    my $name = shift; # temporary build name
+
+    my $tail = '/script-check-build-percent.php?s=' . $name;
+    $self->_get_maybe_login($tail);
+
+    my $content = $self->Mech()->content();
+
+    # "Progress 0 %"
+    # "Sweet!! Powering On Server...."
+
+    return $content;
 }
 
 1;

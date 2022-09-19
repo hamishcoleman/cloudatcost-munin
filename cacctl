@@ -54,6 +54,19 @@ sub server_lookupsid {
     return $server;
 }
 
+sub cmd_build {
+    my $cac = shift;
+
+    return Dumper($cac->build(@_));
+}
+
+sub cmd_buildcheck {
+    my $cac = shift;
+    my $name = shift;
+
+    return $cac->build_check($name) . "\n";
+}
+
 sub cmd_buildstatus {
     my $cac = shift;
 
@@ -305,6 +318,14 @@ sub cmd_todo {
 }
 
 my $cmds = {
+    'build' => {
+        cmd  => \&cmd_build,
+        help => 'Build a server',
+    },
+    'buildcheck' => {
+        cmd  => \&cmd_buildcheck,
+        help => 'Check on server build',
+    },
     'buildstatus'   => {
         cmd  => \&cmd_buildstatus,
         help => 'Return the current build status',
@@ -316,10 +337,6 @@ my $cmds = {
     'listtemplates'   => {
         cmd  => \&cmd_listtemplates,
         help => 'Scape the vm template details',
-    },
-    'build-cloud-pro' => {
-        cmd  => \&cmd_todo,
-        help => 'TODO',
     },
     'poweroff' => {
         cmd  => \&cmd_poweroff,
